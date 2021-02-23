@@ -174,6 +174,20 @@ function InitVariables()
 		altstatus[i] = "(untrained)"
 		i += 1
 	endwhile
+
+;	altstatus[0] = "(untrained)"	; eye
+;	altstatus[1] = "(untrained)"	; mouth
+;	altstatus[2] = "(untrained)"	; neck
+;	altstatus[3] = "(untrained)"	; arm
+;	altstatus[4] = "(untrained)"	; hand
+;	altstatus[5] = "(untrained)"	; breast
+;	altstatus[6] = "(untrained)"	; waist
+;	altstatus[7] = "(untrained)"	; butt
+;	altstatus[8] = "(untrained)"	; vagina
+;	altstatus[9] = "(untrained)"	; anus
+;	altstatus[10] = "(untrained)"	; leg
+;	altstatus[11] = "(untrained)"	; feet
+;	altstatus[12] = "(untrained)"	; weight
 endFunction
 
 bool function isIdle()
@@ -254,7 +268,7 @@ function checkMouth()
 
 		if status == 0 && mouthtime > 0 && MCMValue.mouthrecover > 0
 			mouthtime -= GTpassed * 14.29 * MCMValue.mouthrecover
-			float mouthtimeLimit = mouthtimemix * MCMvalue.mouthRecoveryLimit
+			float mouthtimeLimit = mouthtimeMax * MCMvalue.mouthRecoveryLimit
 			if mouthtime < mouthtimeLimit
 				mouthtime = mouthtimeLimit
 			endif
@@ -887,10 +901,10 @@ function randomComment()
 	comment()
 	int i = 0
 
-	int r1 = utility.randomInt(0, 12)
-	int r2 = utility.randomInt(0, 12)
+	int r1 = utility.randomInt(0, 11)
+	int r2 = utility.randomInt(0, 11)
 
-	while i < 12
+	while i < 11
 		if altstatus[i] != "(untrained)" && (r1 == i || r2 == i)
 			debug.notification(altstatus[i])
 		endif
@@ -1078,4 +1092,124 @@ function resetAlterations()
 	dba_player.restoreAV("SpeedMult", speedmod)
 	dba_Player.damageActorValue("Carryweight", 0.02)
 	dba_Player.restoreActorValue("Carryweight", 0.02)
+endFunction
+
+; ################################################### setX funcs to acces values from MCM menu KEKW ###################################################
+
+function setEyeTime(float value)
+	eyetime = value
+	eyetimeMax = eyetime
+endFunction
+
+function setMouthTime(float value)
+	mouthtime = value
+	mouthtimeMax = mouthtime
+endFunction
+
+function setNeckTime(float value)
+	necktime = value
+	necktimeMax = necktime
+endFunction
+
+function setArmTime(float value)
+	armtime = value
+	armtimeMax = armtime
+endFunction
+
+function setHandTime(float value)
+	handtime = value
+	handtimeMax = handtime
+endFunction
+
+function setBreastTime(float value)
+	breasttime = value
+	breasttimeMax = breasttime
+endFunction
+
+function setWaistTime(float value)
+	waisttime = value
+	waisttimeMax = waisttime
+endFunction
+
+function setButtTime(float value)
+	butttime = value
+	butttimeMax = butttime
+endFunction
+
+function setAnusTime(float value)
+	anustime = value
+	anustimeMax = anustime
+endFunction
+
+function setVaginaTime(float value)
+	vaginatime = value
+	vaginatimeMax = vaginatime
+endFunction
+
+function setLegTime(float value)
+	legtime = value
+	legtimeMax = legtime
+endFunction
+
+function setFootTime(float value)
+	foottime = value
+	foottimeMax = foottime
+endFunction
+
+function setWeightTime(float value)
+	weighttime = value
+endFunction
+
+; ################################################### getX funcs to acces values from MCM menu KEKW ###################################################
+
+float function getEyeTime()
+	return eyetime
+endFunction
+
+float function getMouthTime()
+	return mouthtime
+endFunction
+
+float function getNeckTime()
+	return necktime
+endFunction
+
+float function getArmTime()
+	return armtime
+endFunction
+
+float function getHandTime()
+	return handtime
+endFunction
+
+float function getBreastTime()
+	return breasttime
+endFunction
+
+float function getWaistTime()
+	return waisttime
+endFunction
+
+float function getButtTime()
+	return butttime
+endFunction
+
+float function getAnusTime()
+	return anustime
+endFunction
+
+float function getVaginaTime()
+	return vaginatime
+endFunction
+
+float function getLegTime()
+	return legtime
+endFunction
+
+float function getFootTime()
+	return foottime
+endFunction
+
+float function getWeightTime()
+	return weighttime
 endFunction

@@ -155,7 +155,7 @@ int function GetVersion()
 endFunction
 
 string Function GetStringVer()
-	return "Version 1.2"
+	return "Version 1.3"
 EndFunction
 
 event OnConfigInit()
@@ -165,11 +165,11 @@ event OnConfigInit()
 endEvent
 
 event OnVersionUpdate(int a_version)
-	if (a_version >= 2 && CurrentVersion < 2)
+	;if (a_version >= 2 && CurrentVersion < 2)
 		InitPages()
 		debug.notification(self + GetStringVer() + " loaded.")
 		debug.trace(self + GetStringVer())
-	endif
+	;endif
 endEvent
 
 ;--------------------------------------------------------------------------------------------------
@@ -376,7 +376,7 @@ event OnPageReset(string page)
 	
 	if (page == "Status")
 		AddHeaderOption("Body Alteration Ranks")
-		AddTextOption("Changing values will also affect")
+		AddTextOption("Changing values will also affect", "")
 		AddTextOption("Eye alteration status ", 	dba_player.GetFactionRank(dba_Eye))
 		AddTextOption("Mouth alteration status ", 	dba_player.GetFactionRank(dba_Mouth))
 		AddTextOption("Neck alteration status ", 	dba_player.GetFactionRank(dba_Neck))
@@ -392,7 +392,7 @@ event OnPageReset(string page)
 		AddTextOption("Weight alteration status ", 	dba_player.GetFactionRank(dba_Weight))
 
 		SetCursorPosition(1)
-		AddTextOption("max reached values which will affect recovery limits")
+		AddTextOption("max reached values which will affect recovery limits", "")
 		AddSliderOptionST("eyeAlterationRankST", 	"Set eye alteration rank", 		dba_player.GetFactionRank(dba_Eye), 	"{0}")
 		AddSliderOptionST("mouthAlterationRankST", 	"Set mouth alteration rank", 	dba_player.GetFactionRank(dba_Mouth), 	"{0}")
 		AddSliderOptionST("neckAlterationRankST", 	"Set neck alteration rank", 	dba_player.GetFactionRank(dba_Neck), 	"{0}")
@@ -963,7 +963,7 @@ state eyeRecoveryLimitST
 	endEvent
 
 	event onDefaultST()
-		sliderVal = 0.25
+		eyeRecoveryLimit = 0.25
 		SetSliderOptionValueST(eyeRecoveryLimit, "{0}%")
 	endEvent
 endState
@@ -982,7 +982,7 @@ state mouthRecoveryLimitST
 	endEvent
 
 	event onDefaultST()
-		sliderVal = 0.25
+		mouthRecoveryLimit = 0.25
 		SetSliderOptionValueST(mouthRecoveryLimit, "{0}%")
 	endEvent
 endState
@@ -1001,7 +1001,7 @@ state neckRecoveryLimitST
 	endEvent
 
 	event onDefaultST()
-		sliderVal = 0.25
+		neckRecoveryLimit = 0.25
 		SetSliderOptionValueST(neckRecoveryLimit, "{0}%")
 	endEvent
 endState
@@ -1020,7 +1020,7 @@ state armRecoveryLimitST
 	endEvent
 
 	event onDefaultST()
-		sliderVal = 0.25
+		armRecoveryLimit = 0.25
 		SetSliderOptionValueST(armRecoveryLimit, "{0}%")
 	endEvent
 endState
@@ -1039,7 +1039,7 @@ state handRecoveryLimitST
 	endEvent
 
 	event onDefaultST()
-		sliderVal = 0.25
+		handRecoveryLimit = 0.25
 		SetSliderOptionValueST(handRecoveryLimit, "{0}%")
 	endEvent
 endState
@@ -1058,7 +1058,7 @@ state breastRecoveryLimitST
 	endEvent
 
 	event onDefaultST()
-		sliderVal = 0.25
+		breastRecoveryLimit = 0.25
 		SetSliderOptionValueST(breastRecoveryLimit, "{0}%")
 	endEvent
 endState
@@ -1077,7 +1077,7 @@ state waistRecoveryLimitST
 	endEvent
 
 	event onDefaultST()
-		sliderVal = 0.25
+		waistRecoveryLimit = 0.25
 		SetSliderOptionValueST(waistRecoveryLimit, "{0}%")
 	endEvent
 endState
@@ -1096,7 +1096,7 @@ state buttRecoveryLimitST
 	endEvent
 
 	event onDefaultST()
-		sliderVal = 0.25
+		buttRecoveryLimit = 0.25
 		SetSliderOptionValueST(buttRecoveryLimit, "{0}%")
 	endEvent
 endState
@@ -1115,7 +1115,7 @@ state anusRecoveryLimitST
 	endEvent
 
 	event onDefaultST()
-		sliderVal = 0.25
+		anusRecoveryLimit = 0.25
 		SetSliderOptionValueST(anusRecoveryLimit, "{0}%")
 	endEvent
 endState
@@ -1134,7 +1134,7 @@ state vaginaRecoveryLimitST
 	endEvent
 
 	event onDefaultST()
-		sliderVal = 0.25
+		vaginaRecoveryLimit = 0.25
 		SetSliderOptionValueST(vaginaRecoveryLimit, "{0}%")
 	endEvent
 endState
@@ -1153,7 +1153,7 @@ state legRecoveryLimitST
 	endEvent
 
 	event onDefaultST()
-		sliderVal = 0.25
+		legRecoveryLimit = 0.25
 		SetSliderOptionValueST(legRecoveryLimit, "{0}%")
 	endEvent
 endState
@@ -1172,7 +1172,7 @@ state footRecoveryLimitST
 	endEvent
 
 	event onDefaultST()
-		sliderVal = 0.25
+		footRecoveryLimit = 0.25
 		SetSliderOptionValueST(footRecoveryLimit, "{0}%")
 	endEvent
 endState
@@ -1189,9 +1189,8 @@ state eyeAlterationRankST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.eyetime = value
-		BodyTicker.eyetimeMax = value
-		SetSliderOptionValueST(BodyTicker.eyetime, "{0}")
+		BodyTicker.setEyeTime(value)
+		SetSliderOptionValueST(BodyTicker.getEyeTime(), "{0}")
 	endEvent
 endState
 
@@ -1204,9 +1203,8 @@ state mouthAlterationRankST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.mouthtime = value
-		BodyTicker.mouthtimeMax = value
-		SetSliderOptionValueST(BodyTicker.mouthtime, "{0}")
+		BodyTicker.setMouthTime(value)
+		SetSliderOptionValueST(BodyTicker.getMouthTime(), "{0}")
 	endEvent
 endState
 
@@ -1219,9 +1217,8 @@ state neckAlterationRankST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.necktime = value
-		BodyTicker.necktimeMax = value
-		SetSliderOptionValueST(BodyTicker.necktime, "{0}")
+		BodyTicker.setNeckTime(value)
+		SetSliderOptionValueST(BodyTicker.getNeckTime(), "{0}")
 	endEvent
 endState
 
@@ -1234,9 +1231,8 @@ state armAlterationRankST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.armtime = value
-		BodyTicker.armtimeMax = value
-		SetSliderOptionValueST(BodyTicker.armtime, "{0}")
+		BodyTicker.setArmTime(value)
+		SetSliderOptionValueST(BodyTicker.getArmTime(), "{0}")
 	endEvent
 endState
 
@@ -1249,9 +1245,8 @@ state handAlterationRankST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.handtime = value
-		BodyTicker.handtimeMax = value
-		SetSliderOptionValueST(BodyTicker.handtime, "{0}")
+		BodyTicker.setHandTime(value)
+		SetSliderOptionValueST(BodyTicker.getHandTime(), "{0}")
 	endEvent
 endState
 
@@ -1264,9 +1259,8 @@ state breastAlterationRankST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.breasttime = value
-		BodyTicker.breasttimeMax = value
-		SetSliderOptionValueST(BodyTicker.breasttime, "{0}")
+		BodyTicker.setBreastTime(value)
+		SetSliderOptionValueST(BodyTicker.getBreastTime(), "{0}")
 	endEvent
 endState
 
@@ -1279,9 +1273,8 @@ state waistAlterationRankST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.waisttime = value
-		BodyTicker.waisttimeMax = value
-		SetSliderOptionValueST(BodyTicker.waisttime, "{0}")
+		BodyTicker.setWaistTime(value)
+		SetSliderOptionValueST(BodyTicker.getWaistTime(), "{0}")
 	endEvent
 endState
 
@@ -1294,9 +1287,8 @@ state buttAlterationRankST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.butttime = value
-		BodyTicker.butttimeMax = value
-		SetSliderOptionValueST(BodyTicker.butttime, "{0}")
+		BodyTicker.setButtTime(value)
+		SetSliderOptionValueST(BodyTicker.getButtTime(), "{0}")
 	endEvent
 endState
 
@@ -1309,9 +1301,8 @@ state anusAlterationRankST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.anustime = value
-		BodyTicker.anustimeMax = value
-		SetSliderOptionValueST(BodyTicker.anustime, "{0}")
+		BodyTicker.setAnusTime(value)
+		SetSliderOptionValueST(BodyTicker.getAnusTime(), "{0}")
 	endEvent
 endState
 
@@ -1324,9 +1315,8 @@ state vaginaAlterationRankST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.vaginatime = value
-		BodyTicker.vaginatimeMax = value
-		SetSliderOptionValueST(BodyTicker.vaginatime, "{0}")
+		BodyTicker.setVaginaTime(value)
+		SetSliderOptionValueST(BodyTicker.getVaginaTime(), "{0}")
 	endEvent
 endState
 
@@ -1339,9 +1329,8 @@ state legAlterationRankST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.legtime = value
-		BodyTicker.legtimeMax = value
-		SetSliderOptionValueST(BodyTicker.legtime, "{0}")
+		BodyTicker.setLegTime(value)
+		SetSliderOptionValueST(BodyTicker.getLegTime(), "{0}")
 	endEvent
 endState
 
@@ -1354,9 +1343,8 @@ state footAlterationRankST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.foottime = value
-		BodyTicker.foottimeMax = value
-		SetSliderOptionValueST(BodyTicker.foottime, "{0}")
+		BodyTicker.setLegTime(value)
+		SetSliderOptionValueST(BodyTicker.getFootTime(), "{0}")
 	endEvent
 endState
 
@@ -1369,38 +1357,26 @@ state weightAlterationRankST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.weighttime = value
-		SetSliderOptionValueST(BodyTicker.weighttime, "{0}")
+		BodyTicker.setWeight(value)
+		SetSliderOptionValueST(BodyTicker.getWeightTime(), "{0}")
 	endEvent
 endState
 
 state resetRanksST
 	event OnSelectST()
-		BodyTicker.eyetime 		= 0.0
-		BodyTicker.mouthtime 	= 0.0
-		BodyTicker.necktime 	= 0.0
-		BodyTicker.armtime 		= 0.0
-		BodyTicker.handtime 	= 0.0
-		BodyTicker.breasttime 	= 0.0
-		BodyTicker.waisttime 	= 0.0
-		BodyTicker.butttime 	= 0.0
-		BodyTicker.anustime 	= 0.0
-		BodyTicker.vaginatime 	= 0.0
-		BodyTicker.legtime 		= 0.0
-		BodyTicker.foottime 	= 0.0
-		BodyTicker.weighttime 	= 0.0
-
-		BodyTicker.mouthtimeMax 	= 0.0
-		BodyTicker.necktimeMax 		= 0.0
-		BodyTicker.armtimeMax 		= 0.0
-		BodyTicker.handtimeMax 		= 0.0
-		BodyTicker.breasttimeMax 	= 0.0
-		BodyTicker.waisttimeMax 	= 0.0
-		BodyTicker.butttimeMax 		= 0.0
-		BodyTicker.anustimeMax 		= 0.0
-		BodyTicker.vaginatimeMax 	= 0.0
-		BodyTicker.legtimeMax 		= 0.0
-		BodyTicker.foottimeMax 		= 0.0
+		BodyTicker.setEyeTime(0.0)
+		BodyTicker.setMouthTime(0.0)
+		BodyTicker.setNeckTime(0.0)
+		BodyTicker.setArmTime(0.0)
+		BodyTicker.setHandTime(0.0)
+		BodyTicker.setBreastTime(0.0)
+		BodyTicker.setWaistTime(0.0)
+		BodyTicker.setButtTime(0.0)
+		BodyTicker.setAnusTime(0.0)
+		BodyTicker.setVaginaTime(0.0)
+		BodyTicker.setLegTime(0.0)
+		BodyTicker.setFootTime(0.0)
+		BodyTicker.setWeightTime(0.0)
 
 		SetSliderOptionValueST(0.0, "{0}", false, "eyeAlterationRankST")
 		SetSliderOptionValueST(0.0, "{0}", false, "mouthAlterationRankST")
