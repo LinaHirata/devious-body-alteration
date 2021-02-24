@@ -241,21 +241,29 @@ function checkEye()
 		endif ; eyetime multiplied by 14.29 is approx 7 days from 0 to 100
 	endif
 
-	if (!MCMvalue.eyeEnabled || MCMValue.eye == 0)
-		dba_player.setExpressionModifier(2, 0.0)
-		dba_player.setExpressionModifier(3, 0.0)
-		dba_player.setExpressionModifier(6, 0.0)
-		dba_player.setExpressionModifier(7, 0.0)
-		dba_player.setExpressionModifier(12, 0.0)
-		dba_player.setExpressionModifier(13, 0.0)
-	else
-		float squint = (eyetime * MCMValue.eye / 10000)	; slider setting multiplied with internal expressionmodifier Value is maxed at 10000
-		dba_player.setExpressionModifier(2, squint)
-		dba_player.setExpressionModifier(3, squint)
-		dba_player.setExpressionModifier(6, squint)
-		dba_player.setExpressionModifier(7, squint)
-		dba_player.setExpressionModifier(12, squint)
-		dba_player.setExpressionModifier(13, squint)
+	if !dba_player.WornHasKeyword(dditem[16])
+		if MCMvalue.eyeEnabled && MCMvalue.eye > 0
+			float squint = (eyetime * MCMValue.eye / 10000)	; slider setting multiplied with internal expressionmodifier Value is maxed at 10000
+			if (MCMValue.eyeAlt)
+				dba_player.setExpressionModifier(0, squint)
+				dba_player.setExpressionModifier(1, squint)
+			endif
+			dba_player.setExpressionModifier(2, squint)
+			dba_player.setExpressionModifier(3, squint)
+			dba_player.setExpressionModifier(6, squint)
+			dba_player.setExpressionModifier(7, squint)
+			dba_player.setExpressionModifier(12, squint)
+			dba_player.setExpressionModifier(13, squint)
+		else
+			dba_player.setExpressionModifier(0, 0.0)
+			dba_player.setExpressionModifier(1, 0.0)
+			dba_player.setExpressionModifier(2, 0.0)
+			dba_player.setExpressionModifier(3, 0.0)
+			dba_player.setExpressionModifier(6, 0.0)
+			dba_player.setExpressionModifier(7, 0.0)
+			dba_player.setExpressionModifier(12, 0.0)
+			dba_player.setExpressionModifier(13, 0.0)
+		endif
 	endif
 endFunction
 
@@ -283,13 +291,15 @@ function checkMouth()
 		endif ; mouthtime multiplied by 14.29 is approx 7 days from 0 to 100
 	endif
 
-	if (!MCMvalue.mouthEnabled || MCMValue.mouth == 0) && !dba_player.WornHasKeyword(dditem[5])
-		setPhonemeModifier(dba_player, 0, 1, 0)
-		setPhonemeModifier(dba_player, 0, 11, 0)
-	elseif !dba_player.WornHasKeyword(dditem[5]) ; we don´t want facial expression change while wearing a gag
-		float opening = (mouthtime * MCMValue.mouth / 100) ; slider setting multiplied with internal phonememodifier Value is maxed at 100
-		setPhonemeModifier(dba_player, 0, 1, opening as int)
-		setPhonemeModifier(dba_player, 0, 11, (opening * 0.7) as int) ; using factor 0.7 to prevent it looking weired... more weired as it is
+	if !dba_player.WornHasKeyword(dditem[5]) ; we don´t want facial expression change while wearing a gag
+		if MCMvalue.mouthEnabled && MCMValue.mouth > 0
+			float opening = (mouthtime * MCMValue.mouth / 100) ; slider setting multiplied with internal phonememodifier Value is maxed at 100
+			setPhonemeModifier(dba_player, 0, 1, opening as int)
+			setPhonemeModifier(dba_player, 0, 11, (opening * 0.7) as int) ; using factor 0.7 to prevent it looking weired... more weired as it is
+		else
+			setPhonemeModifier(dba_player, 0, 1, 0)
+			setPhonemeModifier(dba_player, 0, 11, 0)
+		endif
 	endif
 endFunction
 
@@ -676,15 +686,15 @@ function BodyMorph()
 	endif
 
 ;#####Armsection#####
-	if !(MCMvalue.armEnabled || MCMValue.arm == 0)
-		SetMorphValue(dba_Player, 0.0, "Arms")
-		setMorphValue(dba_Player, 0.0, "ShoulderSmooth")
-		setMorphValue(dba_player, 0.0, "ShoulderWidth")
-	else
+	if MCMvalue.armEnabled && MCMvalue.arm > 0
 		float arm = (armtime * MCMValue.arm / 10000) ; slider muliplied by factionrank is maxed at 10000
 		SetMorphValue(dba_Player, arm, "Arms")
 		setMorphValue(dba_Player, arm * 0.75, "ShoulderSmooth")
 		setMorphValue(dba_player, -arm * 0.75, "ShoulderWidth")
+	else
+		SetMorphValue(dba_Player, 0.0, "Arms")
+		setMorphValue(dba_Player, 0.0, "ShoulderSmooth")
+		setMorphValue(dba_player, 0.0, "ShoulderWidth")
 	endif
 
 	dba_player.setFactionRank(MCMvalue.dba_Arm, armtime as int)
@@ -699,17 +709,17 @@ function BodyMorph()
 	endif
 
 ;#####Breastsection#####
-	if (!MCMvalue.breastEnabled || MCMValue.breast == 0)
-		setMorphValue(dba_Player, 0.0, "BreastsFantasy")
-		setMorphValue(dba_player, 0.0, "BreastsSmall")
-		setMorphValue(dba_player, 0.0, "BreastPerkiness")
-		setMorphValue(dba_player, 0.0, "NippleLength")
-	else
-		float breast = (breasttime * MCMValue.breast / 10000) ;slider muliplied by factionrank is maxed at 10000
+	if MCMvalue.breastEnabled && MCMvalue.breast > 0
+		float breast = (breasttime * MCMValue.breast / 10000) ; slider muliplied by factionrank is maxed at 10000
 		setMorphValue(dba_Player, breast, "BreastsFantasy")
 		setMorphValue(dba_player, -breast, "BreastsSmall")
 		setMorphValue(dba_player, breast * 0.25, "BreastPerkiness")
 		setMorphValue(dba_player, breast * 0.5, "NippleLength")
+	else
+		setMorphValue(dba_Player, 0.0, "BreastsFantasy")
+		setMorphValue(dba_player, 0.0, "BreastsSmall")
+		setMorphValue(dba_player, 0.0, "BreastPerkiness")
+		setMorphValue(dba_player, 0.0, "NippleLength")
 	endif
 
 	if MCMValue.mme
@@ -729,19 +739,19 @@ function BodyMorph()
 	endif
 
 ;#####Waistsection#####
-	if (!MCMvalue.waistEnabled || MCMValue.waist == 0)
-		setMorphValue(dba_player, 0.0, "Waist")
-		setMorphValue(dba_Player, 0.0, "WideWaistLine")
-		setMorphValue(dba_Player, 0.0, "ChubbyWaist")
-		setMorphValue(dba_Player, 0.0, "Back")
-		setMorphValue(dba_Player, 0.0, "BigBelly")
-	else
-		float waist = (waisttime * MCMValue.waist / 10000) ;slider muliplied by factionrank is maxed at 10000
+	if MCMvalue.waistEnabled && MCMvalue.waist > 0
+		float waist = (waisttime * MCMValue.waist / 10000) ; slider muliplied by factionrank is maxed at 10000
 		setMorphValue(dba_player, waist / 2, "Waist")
 		setMorphValue(dba_Player, -waist * 0.75, "WideWaistLine")
 		setMorphValue(dba_Player, -waist * 0.75, "ChubbyWaist")
 		setMorphValue(dba_Player, -waist, "Back")
 		setMorphValue(dba_Player, -waist / 2, "BigBelly")
+	else
+		setMorphValue(dba_player, 0.0, "Waist")
+		setMorphValue(dba_Player, 0.0, "WideWaistLine")
+		setMorphValue(dba_Player, 0.0, "ChubbyWaist")
+		setMorphValue(dba_Player, 0.0, "Back")
+		setMorphValue(dba_Player, 0.0, "BigBelly")
 	endif
 
 	dba_player.setFactionRank(MCMvalue.dba_Waist, waisttime as int)
@@ -750,13 +760,13 @@ function BodyMorph()
 	endif
 
 ;#####Buttsection#####
-	if (!MCMvalue.buttEnabled || MCMValue.butt == 0)
+	if MCMvalue.buttEnabled && MCMvalue.butt > 0
+		float butt = (butttime * MCMValue.butt / 10000) ; slider muliplied by factionrank is maxed at 10000
+		setMorphValue(dba_player, butt, "BigButt")
+		setMorphValue(dba_Player, butt, "AppleCheeks")
+	else
 		setMorphValue(dba_player, 0.0, "BigButt")
 		setMorphValue(dba_Player, 0.0, "AppleCheeks")
-	else
-		float butt = (butttime * MCMValue.butt / 10000) ;slider muliplied by factionrank is maxed at 10000
-		setMorphValue(dba_player, butt, "BigButt")
-		setMorphValue(dba_Player, butt, "AppleCheeks")			
 	endif
 
 	dba_player.setFactionRank(MCMvalue.dba_Butt, butttime as int)
@@ -765,6 +775,13 @@ function BodyMorph()
 	endif
 
 ;#####Anussection#####
+	if MCMvalue.anusEnabled && MCMvalue.anus > 0
+		float anus = (anustime * MCMValue.anus / 10000) ; slider muliplied by factionrank is maxed at 10000
+		setMorphValue(dba_player, anus, "AnusSpread")
+	else
+		setMorphValue(dba_player, 0.0, "AnusSpread")
+	endif
+
 	dba_player.setFactionRank(MCMvalue.dba_Anus, anustime as int)
 	if MCMValue.debuglogenabled
 		Debug.trace("DBA: Anus adjustment done.")
@@ -777,13 +794,13 @@ function BodyMorph()
 	endif
 	
 ;#####Legsection#####
-	if (!MCMvalue.legEnabled || MCMValue.leg == 0)
-		setMorphValue(dba_Player, 0.0, "KneeHeight")
-		setMorphValue(dba_Player, 0.0, "CalfSize")
-	else
-		float leg = (legtime * MCMValue.leg / 10000) ;slider muliplied by factionrank is maxed at 10000
+	if MCMvalue.legEnabled && MCMvalue.leg > 0
+		float leg = (legtime * MCMValue.leg / 10000) ; slider muliplied by factionrank is maxed at 10000
 		setMorphValue(dba_Player, leg, "KneeHeight")
 		setMorphValue(dba_Player, leg, "CalfSize")
+	else
+		setMorphValue(dba_Player, 0.0, "KneeHeight")
+		setMorphValue(dba_Player, 0.0, "CalfSize")
 	endif
 
 	dba_player.setFactionRank(MCMvalue.dba_Leg, legtime as int)
@@ -799,7 +816,7 @@ function BodyMorph()
 
 ;#####Weightsection#####
 	if MCMValue.weight
-		if (!dba_player.isOnMount() || !dba_player.isSwimming()) && Morphupdate < GTcurrent
+		if (!dba_player.isOnMount() || !dba_player.isSwimming()) ;&& Morphupdate < GTcurrent
 			float neckdelta = (weightcalc / 100) - (weighttime / 100)
 			dba_player.getActorBase().setWeight(weighttime)
 			dba_player.updateWeight(neckdelta)		
@@ -817,15 +834,15 @@ endFunction
 function BodyTransform()
 	int r = utility.RandomInt(0, 44)
 	
-	if (!MCMValue.neckEnabled || MCMValue.neck == 0)
-		AddNodeTransformScale(dba_player, false, true, "NPC Head [Head]", 1.0)
-		AddNodeTransformScale(dba_player, false, true, "NPC Neck [Neck]", 1.0)
-	else
+	if (MCMvalue.neckEnabled && MCMvalue.neck > 0)
 		float head = 1 / (1 + (necktime * MCMValue.neck / 10000)) ; slider muliplied by factionrank is maxed at 10000
 		float neck = 1 + (necktime * MCMValue.neck / 10000) ; slider muliplied by factionrank is maxed at 10000
 
 		AddNodeTransformScale(dba_player, false, true, "NPC Head [Head]", head)
 		AddNodeTransformScale(dba_player, false, true, "NPC Neck [Neck]", neck)
+	else
+		AddNodeTransformScale(dba_player, false, true, "NPC Head [Head]", 1.0)
+		AddNodeTransformScale(dba_player, false, true, "NPC Neck [Neck]", 1.0)
 	endif
 	
 	if (MCMvalue.waistEnabled && MCMValue.waist > 0 && MCMValue.waistalt)
@@ -843,13 +860,13 @@ function BodyTransform()
 		endif
 	endif
 	
-	if (!MCMvalue.vaginaEnabled || MCMValue.vagina == 0)
-		AddNodeTransformScale(dba_player, false, true, "NPC L Pussy02", 1.0)
-		AddNodeTransformScale(dba_player, false, true, "NPC R Pussy02", 1.0)
-	else				
+	if MCMvalue.vaginaEnabled && MCMvalue.vagina > 0	
 		float vagina = 1 / (1 + (vaginatime * MCMValue.vagina / 10000)) ; slider muliplied by factionrank is maxed at 10000
 		AddNodeTransformScale(dba_player, false, true, "NPC L Pussy02", vagina)
 		AddNodeTransformScale(dba_player, false, true, "NPC R Pussy02", vagina)
+	else
+		AddNodeTransformScale(dba_player, false, true, "NPC L Pussy02", 1.0)
+		AddNodeTransformScale(dba_player, false, true, "NPC R Pussy02", 1.0)
 	endif	
 endFunction
 
@@ -904,7 +921,11 @@ function randomComment()
 	int r1 = utility.randomInt(0, 11)
 	int r2 = utility.randomInt(0, 11)
 
-	while i < 11
+	int placeholder = 12
+	if MCMvalue.ypspresent
+		placeholder = 11
+	endif
+	while i < placeholder
 		if altstatus[i] != "(untrained)" && (r1 == i || r2 == i)
 			debug.notification(altstatus[i])
 		endif

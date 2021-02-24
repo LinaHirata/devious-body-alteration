@@ -154,9 +154,9 @@ int function GetVersion()
 	return 2
 endFunction
 
-string Function GetStringVer()
+string function  GetStringVer()
 	return "Version 1.3"
-EndFunction
+endFunction
 
 event OnConfigInit()
 	InitPages()
@@ -174,7 +174,7 @@ endEvent
 
 ;--------------------------------------------------------------------------------------------------
 
-Function CheckOptionalMods()	
+function  CheckOptionalMods()	
 	if Game.GetModByName("Sexlab Inflation Framework.esp") == 255
 		SLIFpresent = false		
 	else		
@@ -194,7 +194,7 @@ Function CheckOptionalMods()
 	endif
 endFunction
 
-Function InitPages()
+function InitPages()
 	CheckOptionalMods()
 	dba_player = Game.GetPlayer()
 	
@@ -238,7 +238,7 @@ Function InitPages()
 		dba_player.AddToFaction(dba_Weight)
 	endif
 
-	Pages = new string[4]
+	Pages = new string[5]
 	Pages[0] = "General"
 	Pages[1] = "Alteration"
 	Pages[2] = "Recovery"
@@ -263,35 +263,15 @@ event OnPageReset(string page)
 		return
 	else
 		UnloadCustomContent()
-	endIf
+	endif
 	
 	if (page == "General")
 		AddHeaderOption("Devious Body Alteration " + GetStringVer())
-		modenabledOID = AddToggleOption("Mod enabled", modenabled)
+		modenabledOID 	= AddToggleOption("Mod enabled", modenabled)
 		updatetickerOID = AddSliderOption("Update Interval setting", updateticker, "{2}sec")
-		speedOID = AddSliderOption("Alteration Speed", speed, "{1}")
-		morphtimerOID = AddSliderOption("Body Morph Speed", morphtimer, "{1}h")
-		SetCursorPosition(1)
-
-		AddHeaderOption("Morpheffects used")
-		AddToggleOptionST("eyeAltST","Alternative Eye Alteration", eyeAlt)
-		waistaltOID = AddToggleOption("Alternative Waist Alteration", waistalt)
-
-		AddHeaderOption("Alteration effects to use")
-		commentOID = AddToggleOption("Alteration comments", comment)
-		walkingspeedOID = AddToggleOption("Walking Speed Adjustment", walkingspeed)
-		if walkingspeed 
-			maxspeedmultOID = AddSliderOption("max Speed Adjustment", maxspeedmult, "{0}%")
-			minspeedmultOID = AddSliderOption("min Speed Adjustment", minspeedmult, "{0}%")
-			heeldebuffOID = AddSliderOption("Heel Speed Debuff", heeldebuff, "{1}")
-			legdebuffOID = AddSliderOption("Leg Speed Debuff", legdebuff, "{1}")
-		else 
-			maxspeedmultOID = AddSliderOption("max Speed Adjustment", maxspeedmult, "{0}%", OPTION_FLAG_DISABLED)
-			minspeedmultOID = AddSliderOption("min Speed Adjustment", minspeedmult, "{0}%", OPTION_FLAG_DISABLED)
-			heeldebuffOID = AddSliderOption("Heel Speed Debuff", heeldebuff, "{1}", OPTION_FLAG_DISABLED)
-			legdebuffOID = AddSliderOption("Leg Speed Debuff", legdebuff, "{1}", OPTION_FLAG_DISABLED)
-		endif
-		
+		speedOID 		= AddSliderOption("Alteration Speed", speed, "{1}")
+		morphtimerOID 	= AddSliderOption("Body Morph Speed", morphtimer, "{1}h")
+		AddHeaderOption("Mod Compatibility")
 		if SLIFpresent
 			slifOID = AddToggleOption("SexLabInflationFramework", SLIF)
 		else 
@@ -309,42 +289,62 @@ event OnPageReset(string page)
 			mmeOID = AddToggleOption("Milk Mod Economy", MME, OPTION_FLAG_DISABLED)
 			MMEbreastmaxOID = AddSliderOption("max MMEbreast size", mmebreastmax, "{1}", OPTION_FLAG_DISABLED)
 		endif
-	endIf
+		AddEmptyOption()
+		AddTextOptionST("updateMenuST", "Update Menu", "")
+		
+		SetCursorPosition(1)
+		AddHeaderOption("Alteration effects to use")
+		commentOID 		= AddToggleOption("Alteration comments", comment)
+		AddToggleOptionST("eyeAltST","Alternative Eye Alteration", eyeAlt)
+		waistaltOID 	= AddToggleOption("Alternative Waist Alteration", waistalt)
+		walkingspeedOID = AddToggleOption("Walking Speed Adjustment", walkingspeed)
+		if walkingspeed 
+			maxspeedmultOID = AddSliderOption("max Speed Adjustment", maxspeedmult, "{0}%")
+			minspeedmultOID = AddSliderOption("min Speed Adjustment", minspeedmult, "{0}%")
+			heeldebuffOID = AddSliderOption("Heel Speed Debuff", heeldebuff, "{1}")
+			legdebuffOID = AddSliderOption("Leg Speed Debuff", legdebuff, "{1}")
+		else 
+			maxspeedmultOID = AddSliderOption("max Speed Adjustment", maxspeedmult, "{0}%", OPTION_FLAG_DISABLED)
+			minspeedmultOID = AddSliderOption("min Speed Adjustment", minspeedmult, "{0}%", OPTION_FLAG_DISABLED)
+			heeldebuffOID = AddSliderOption("Heel Speed Debuff", heeldebuff, "{1}", OPTION_FLAG_DISABLED)
+			legdebuffOID = AddSliderOption("Leg Speed Debuff", legdebuff, "{1}", OPTION_FLAG_DISABLED)
+		endif
+	endif
 	
 	if (page == "Alteration")
 		AddHeaderOption("Alteration Settings")
-		AddToggleOptionST("eyeEnabledToggleST", 	"Enable eye alteration", 		eyeEnabled)
+		AddToggleOptionST("eyeEnabledToggleST", 	"Enable eyes alteration", 		eyeEnabled)
 		AddToggleOptionST("mouthEnabledToggleST", 	"Enable mouth alteration", 		mouthEnabled)
 		AddToggleOptionST("neckEnabledToggleST", 	"Enable neck alteration", 		neckEnabled)
-		AddToggleOptionST("armEnabledToggleST", 	"Enable arm alteration", 		armEnabled)
-		AddToggleOptionST("handEnabledToggleST", 	"Enable hand alteration", 		handEnabled)
-		AddToggleOptionST("breastEnabledToggleST", 	"Enable breast alteration", 	breastEnabled)
+		AddToggleOptionST("armEnabledToggleST", 	"Enable arms alteration", 		armEnabled)
+		AddToggleOptionST("handEnabledToggleST", 	"Enable hands alteration", 		handEnabled)
+		AddToggleOptionST("breastEnabledToggleST", 	"Enable breasts alteration", 	breastEnabled)
 		AddToggleOptionST("waistEnabledToggleST", 	"Enable waist alteration", 		waistEnabled)
 		AddToggleOptionST("buttEnabledToggleST", 	"Enable butt alteration", 		buttEnabled)
 		AddToggleOptionST("anusEnabledToggleST", 	"Enable anus alteration", 		anusEnabled)
 		AddToggleOptionST("vaginaEnabledToggleST", 	"Enable vagina alteration", 	vaginaEnabled)
-		AddToggleOptionST("legEnabledToggleST", 	"Enable leg alteration", 		legEnabled)
-		AddToggleOptionST("footEnabledToggleST", 	"Enable foot alteration", 		footEnabled)
-		weightOID = AddToggleOption("Enable Weight alteration", weight)
+		AddToggleOptionST("legEnabledToggleST", 	"Enable legs alteration", 		legEnabled)
+		AddToggleOptionST("footEnabledToggleST", 	"Enable feet alteration", 		footEnabled)
+		weightOID = AddToggleOption("Enable weight alteration", weight)
 
 		SetCursorPosition(1)
 		AddEmptyOption()
-		eyeOID = 	AddSliderOption("Eye alteration strength", 		eye, 	"{0}")
+		eyeOID = 	AddSliderOption("Eyes alteration strength", 	eye, 	"{0}")
 		mouthOID = 	AddSliderOption("Mouth alteration strength", 	mouth, 	"{0}")
 		neckOID = 	AddSliderOption("Neck alteration strength", 	neck, 	"{0}")
-		armOID = 	AddSliderOption("Arm alteration strength", 		arm, 	"{0}")
-		handOID = 	AddSliderOption("Hand alteration strength", 	hand, 	"{0}")
-		breastOID = AddSliderOption("Breast alteration strength", 	breast, "{0}")
+		armOID = 	AddSliderOption("Arms alteration strength", 	arm, 	"{0}")
+		handOID = 	AddSliderOption("Hands alteration strength", 	hand, 	"{0}")
+		breastOID = AddSliderOption("Breasts alteration strength", 	breast, "{0}")
 		waistOID = 	AddSliderOption("Waist alteration strength", 	waist, 	"{0}")
 		buttOID = 	AddSliderOption("Butt alteration strength", 	butt, 	"{0}")
 		anusOID = 	AddSliderOption("Anus alteration strength", 	anus, 	"{0}")
 		vaginaOID = AddSliderOption("Vagina alteration strength", 	vagina, "{0}")
-		legOID = 	AddSliderOption("Leg alteration strength", 		leg, 	"{0}")
-		footOID = 	AddSliderOption("Foot alteration strength", 	foot, 	"{0}")
-	endIf
+		legOID = 	AddSliderOption("Legs alteration strength", 	leg, 	"{0}")
+		footOID = 	AddSliderOption("Feet alteration strength", 	foot, 	"{0}")
+	endif
 
 	if (page == "Recovery")
-		AddHeaderOption("Recover Settings")
+		AddHeaderOption("Recovery Settings")
 		mouthrecoverOID 	= AddSliderOption("Mouth recovery mulitplier", 	mouthrecover, 	"{2}")
 		eyerecoverOID 		= AddSliderOption("Eye recovery mulitplier", 	eyerecover, 	"{2}")
 		neckrecoverOID 		= AddSliderOption("Neck recovery mulitplier", 	neckrecover, 	"{2}")
@@ -360,65 +360,49 @@ event OnPageReset(string page)
 
 		SetCursorPosition(1)
 		AddEmptyOption()
-		AddSliderOptionST("eyeRecoveryLimitST", 	"Eye recovery limit", 		eyeRecoveryLimit, 		"{0}%")
-		AddSliderOptionST("mouthRecoveryLimitST", 	"Mouth recovery limit", 	mouthRecoveryLimit, 	"{0}%")
-		AddSliderOptionST("neckRecoveryLimitST", 	"Neck recovery limit", 		neckRecoveryLimit, 		"{0}%")
-		AddSliderOptionST("armRecoveryLimitST", 	"Arm recovery limit", 		armRecoveryLimit, 		"{0}%")
-		AddSliderOptionST("handRecoveryLimitST", 	"Hand recovery limit", 		handRecoveryLimit, 		"{0}%")
-		AddSliderOptionST("breastRecoveryLimitST", 	"Breast recovery limit", 	breastRecoveryLimit, 	"{0}%")
-		AddSliderOptionST("waistRecoveryLimitST", 	"Waist recovery limit", 	waistRecoveryLimit, 	"{0}%")
-		AddSliderOptionST("buttRecoveryLimitST", 	"Butt recovery limit", 		buttRecoveryLimit, 		"{0}%")
-		AddSliderOptionST("anusRecoveryLimitST", 	"Anus recovery limit", 		anusRecoveryLimit, 		"{0}%")
-		AddSliderOptionST("vaginaRecoveryLimitST", 	"Vagina recovery limit", 	vaginaRecoveryLimit, 	"{0}%")
-		AddSliderOptionST("legRecoveryLimitST", 	"Leg recovery limit", 		legRecoveryLimit, 		"{0}%")
-		AddSliderOptionST("footRecoveryLimitST", 	"Foot recovery limit", 		footRecoveryLimit, 		"{0}%")
+		AddSliderOptionST("eyeRecoveryLimitST", 	"Eye recovery limit", 		eyeRecoveryLimit, 		"{2}")
+		AddSliderOptionST("mouthRecoveryLimitST", 	"Mouth recovery limit", 	mouthRecoveryLimit, 	"{2}")
+		AddSliderOptionST("neckRecoveryLimitST", 	"Neck recovery limit", 		neckRecoveryLimit, 		"{2}")
+		AddSliderOptionST("armRecoveryLimitST", 	"Arm recovery limit", 		armRecoveryLimit, 		"{2}")
+		AddSliderOptionST("handRecoveryLimitST", 	"Hand recovery limit", 		handRecoveryLimit, 		"{2}")
+		AddSliderOptionST("breastRecoveryLimitST", 	"Breast recovery limit", 	breastRecoveryLimit, 	"{2}")
+		AddSliderOptionST("waistRecoveryLimitST", 	"Waist recovery limit", 	waistRecoveryLimit, 	"{2}")
+		AddSliderOptionST("buttRecoveryLimitST", 	"Butt recovery limit", 		buttRecoveryLimit, 		"{2}")
+		AddSliderOptionST("anusRecoveryLimitST", 	"Anus recovery limit", 		anusRecoveryLimit, 		"{2}")
+		AddSliderOptionST("vaginaRecoveryLimitST", 	"Vagina recovery limit", 	vaginaRecoveryLimit, 	"{2}")
+		AddSliderOptionST("legRecoveryLimitST", 	"Leg recovery limit", 		legRecoveryLimit, 		"{2}")
+		AddSliderOptionST("footRecoveryLimitST", 	"Foot recovery limit", 		footRecoveryLimit, 		"{2}")
 	endif
 	
 	if (page == "Status")
-		AddHeaderOption("Body Alteration Ranks")
-		AddTextOption("Changing values will also affect", "")
-		AddTextOption("Eye alteration status ", 	dba_player.GetFactionRank(dba_Eye))
-		AddTextOption("Mouth alteration status ", 	dba_player.GetFactionRank(dba_Mouth))
-		AddTextOption("Neck alteration status ", 	dba_player.GetFactionRank(dba_Neck))
-		AddTextOption("Arm alteration status ", 	dba_player.GetFactionRank(dba_Arm))
-		AddTextOption("Hand alteration status ", 	dba_player.GetFactionRank(dba_Hand))
-		AddTextOption("Breast alteration status ", 	dba_player.GetFactionRank(dba_Breast))
-		AddTextOption("Waist alteration status ", 	dba_player.GetFactionRank(dba_Waist))
-		AddTextOption("Butt alteration status ", 	dba_player.GetFactionRank(dba_Butt))
-		AddTextOption("Anus alteration status ", 	dba_player.GetFactionRank(dba_Anus))
-		AddTextOption("Vagina alteration status ", 	dba_player.GetFactionRank(dba_Vagina))
-		AddTextOption("Leg alteration status ", 	dba_player.GetFactionRank(dba_Leg))
-		AddTextOption("Foot alteration status ", 	dba_player.GetFactionRank(dba_Foot))
-		AddTextOption("Weight alteration status ", 	dba_player.GetFactionRank(dba_Weight))
+		AddHeaderOption("Alteration Ranks")
+		AddSliderOptionST("eyeAlterationRankST", 	"Set eye alteration rank", 		BodyTicker.getEyeTime(), 	"{0}")
+		AddSliderOptionST("mouthAlterationRankST", 	"Set mouth alteration rank", 	BodyTicker.getMouthTime(), 	"{0}")
+		AddSliderOptionST("neckAlterationRankST", 	"Set neck alteration rank", 	BodyTicker.getNeckTime(), 	"{0}")
+		AddSliderOptionST("armAlterationRankST", 	"Set arm alteration rank", 		BodyTicker.getArmTime(), 	"{0}")
+		AddSliderOptionST("handAlterationRankST", 	"Set hand alteration rank", 	BodyTicker.getHandTime(), 	"{0}")
+		AddSliderOptionST("breastAlterationRankST", "Set breast alteration rank", 	BodyTicker.getBreastTime(), "{0}")
+		AddSliderOptionST("waistAlterationRankST", 	"Set waist alteration rank", 	BodyTicker.getWaistTime(), 	"{0}")
+		AddSliderOptionST("buttAlterationRankST", 	"Set butt alteration rank", 	BodyTicker.getButtTime(), 	"{0}")
+		AddSliderOptionST("anusAlterationRankST", 	"Set anus alteration rank", 	BodyTicker.getAnusTime(), 	"{0}")
+		AddSliderOptionST("vaginaAlterationRankST", "Set vagina alteration rank", 	BodyTicker.getVaginaTime(), "{0}")
+		AddSliderOptionST("legAlterationRankST", 	"Set leg alteration rank", 		BodyTicker.getLegTime(), 	"{0}")
+		AddSliderOptionST("footAlterationRankST", 	"Set foot alteration rank", 	BodyTicker.getFootTime(), 	"{0}")
+		AddSliderOptionST("weightAlterationRankST", "Set weight alteration rank", 	BodyTicker.getWeightTime(), "{0}")
 
 		SetCursorPosition(1)
-		AddTextOption("max reached values which will affect recovery limits", "")
-		AddSliderOptionST("eyeAlterationRankST", 	"Set eye alteration rank", 		dba_player.GetFactionRank(dba_Eye), 	"{0}")
-		AddSliderOptionST("mouthAlterationRankST", 	"Set mouth alteration rank", 	dba_player.GetFactionRank(dba_Mouth), 	"{0}")
-		AddSliderOptionST("neckAlterationRankST", 	"Set neck alteration rank", 	dba_player.GetFactionRank(dba_Neck), 	"{0}")
-		AddSliderOptionST("armAlterationRankST", 	"Set arm alteration rank", 		dba_player.GetFactionRank(dba_Arm), 	"{0}")
-		AddSliderOptionST("handAlterationRankST", 	"Set hand alteration rank", 	dba_player.GetFactionRank(dba_Hand), 	"{0}")
-		AddSliderOptionST("breastAlterationRankST", "Set breast alteration rank", 	dba_player.GetFactionRank(dba_Breast), 	"{0}")
-		AddSliderOptionST("waistAlterationRankST", 	"Set waist alteration rank", 	dba_player.GetFactionRank(dba_Waist), 	"{0}")
-		AddSliderOptionST("buttAlterationRankST", 	"Set butt alteration rank", 	dba_player.GetFactionRank(dba_Butt), 	"{0}")
-		AddSliderOptionST("anusAlterationRankST", 	"Set anus alteration rank", 	dba_player.GetFactionRank(dba_Anus), 	"{0}")
-		AddSliderOptionST("vaginaAlterationRankST", "Set vagina alteration rank", 	dba_player.GetFactionRank(dba_Vagina), 	"{0}")
-		AddSliderOptionST("legAlterationRankST", 	"Set leg alteration rank", 		dba_player.GetFactionRank(dba_Leg), 	"{0}")
-		AddSliderOptionST("footAlterationRankST", 	"Set foot alteration rank", 	dba_player.GetFactionRank(dba_Foot), 	"{0}")
-		AddSliderOptionST("weightAlterationRankST", "Set weight alteration rank", 	dba_player.GetFactionRank(dba_Weight), 	"{0}")
-
 		AddEmptyOption()
-		AddTextOptionST("resetRanksST", "Reset all ranks", "")
-	endIf
+		AddTextOptionST("resetRanksST", "Reset ranks", "")
+	endif
 
 	;if (page == "Help")
 		
 	;endif
 
 	if (page == "Debug")
-		debuglogenabledOID = AddToggleOption("Debug to log enabled", debuglogenabled)
-		debugenabledOID = AddToggleOption("Debug notifications enabled", debugenabled)
-	endIf
+		debuglogenabledOID = AddToggleOption("Debug to log", debuglogenabled)
+		debugenabledOID = AddToggleOption("Debug notifications", debugenabled)
+	endif
 endEvent
 
 event OnOptionSliderOpen(int option)
@@ -592,7 +576,7 @@ event OnOptionSliderOpen(int option)
 	endif
 endEvent
 
-Event OnOptionSliderAccept(int option, float value)
+event OnOptionSliderAccept(int option, float value)
 ;###########General##############
 	if option == updatetickerOID
 		updateticker = value as float
@@ -657,7 +641,7 @@ Event OnOptionSliderAccept(int option, float value)
 	elseif option == footOID
 		foot = value as float
 		SetSliderOptionValue(option, foot, "{0}")
-	endIf
+	endif
 	
 ;###########Recovery###########
 	if option == eyerecoverOID
@@ -696,10 +680,10 @@ Event OnOptionSliderAccept(int option, float value)
 	elseif option == footrecoverOID
 		footrecover = value as float
 		SetSliderOptionValue(option, footrecover, "{2}")
-	endIf
+	endif
 endEvent
 
-Event OnOptionHighlight (int option)
+event OnOptionHighlight (int option)
 ;###########General##############
 	if option == modenabledOID
 		setInfoText("If you disabled the mod, all changes to your body will reset.\nIf you enable the mod again within the next inGame hour no Changes to your body will occur.")
@@ -758,7 +742,7 @@ Event OnOptionHighlight (int option)
 		SetInfoText("Toggles alternative (more extreme) waist scaling.")
 	elseif option  == commentOID
 		SetInfoText("Toggles the comment function to body alteration status in the left corner on/off.")
-	endIf
+	endif
 
 ;###########Recovery###########
 	if option == eyerecoverOID
@@ -785,7 +769,7 @@ Event OnOptionHighlight (int option)
 		SetInfoText("Use slider to determine the muscle recovery rate off your legs.\nSet 0 to never recover.\nValues below 1 will slow down the recovery rate.")
 	elseif option == footrecoverOID
 		SetInfoText("Use slider to determine the achilles training recovery rate.\nSet 0 to never recover.\nValues below 1 will slow down the recovery rate.")
-	endIf
+	endif
 endEvent
 
 event OnOptionMenuOpen(int option)
@@ -959,12 +943,12 @@ state eyeRecoveryLimitST
 
 	event onSliderAcceptST(float value)
 		eyeRecoveryLimit = value as float
-		SetSliderOptionValueST(eyeRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(eyeRecoveryLimit, "{2}")
 	endEvent
 
 	event onDefaultST()
 		eyeRecoveryLimit = 0.25
-		SetSliderOptionValueST(eyeRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(eyeRecoveryLimit, "{2}")
 	endEvent
 endState
 
@@ -978,12 +962,12 @@ state mouthRecoveryLimitST
 
 	event onSliderAcceptST(float value)
 		mouthRecoveryLimit = value as float
-		SetSliderOptionValueST(mouthRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(mouthRecoveryLimit, "{2}")
 	endEvent
 
 	event onDefaultST()
 		mouthRecoveryLimit = 0.25
-		SetSliderOptionValueST(mouthRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(mouthRecoveryLimit, "{2}")
 	endEvent
 endState
 
@@ -997,12 +981,12 @@ state neckRecoveryLimitST
 
 	event onSliderAcceptST(float value)
 		neckRecoveryLimit = value as float
-		SetSliderOptionValueST(neckRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(neckRecoveryLimit, "{2}")
 	endEvent
 
 	event onDefaultST()
 		neckRecoveryLimit = 0.25
-		SetSliderOptionValueST(neckRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(neckRecoveryLimit, "{2}")
 	endEvent
 endState
 
@@ -1016,12 +1000,12 @@ state armRecoveryLimitST
 
 	event onSliderAcceptST(float value)
 		armRecoveryLimit = value as float
-		SetSliderOptionValueST(armRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(armRecoveryLimit, "{2}")
 	endEvent
 
 	event onDefaultST()
 		armRecoveryLimit = 0.25
-		SetSliderOptionValueST(armRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(armRecoveryLimit, "{2}")
 	endEvent
 endState
 
@@ -1035,12 +1019,12 @@ state handRecoveryLimitST
 
 	event onSliderAcceptST(float value)
 		handRecoveryLimit = value as float
-		SetSliderOptionValueST(handRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(handRecoveryLimit, "{2}")
 	endEvent
 
 	event onDefaultST()
 		handRecoveryLimit = 0.25
-		SetSliderOptionValueST(handRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(handRecoveryLimit, "{2}")
 	endEvent
 endState
 
@@ -1054,12 +1038,12 @@ state breastRecoveryLimitST
 
 	event onSliderAcceptST(float value)
 		breastRecoveryLimit = value as float
-		SetSliderOptionValueST(breastRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(breastRecoveryLimit, "{2}")
 	endEvent
 
 	event onDefaultST()
 		breastRecoveryLimit = 0.25
-		SetSliderOptionValueST(breastRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(breastRecoveryLimit, "{2}")
 	endEvent
 endState
 
@@ -1073,12 +1057,12 @@ state waistRecoveryLimitST
 
 	event onSliderAcceptST(float value)
 		waistRecoveryLimit = value as float
-		SetSliderOptionValueST(waistRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(waistRecoveryLimit, "{2}")
 	endEvent
 
 	event onDefaultST()
 		waistRecoveryLimit = 0.25
-		SetSliderOptionValueST(waistRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(waistRecoveryLimit, "{2}")
 	endEvent
 endState
 
@@ -1092,12 +1076,12 @@ state buttRecoveryLimitST
 
 	event onSliderAcceptST(float value)
 		buttRecoveryLimit = value as float
-		SetSliderOptionValueST(buttRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(buttRecoveryLimit, "{2}")
 	endEvent
 
 	event onDefaultST()
 		buttRecoveryLimit = 0.25
-		SetSliderOptionValueST(buttRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(buttRecoveryLimit, "{2}")
 	endEvent
 endState
 
@@ -1111,12 +1095,12 @@ state anusRecoveryLimitST
 
 	event onSliderAcceptST(float value)
 		anusRecoveryLimit = value as float
-		SetSliderOptionValueST(anusRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(anusRecoveryLimit, "{2}")
 	endEvent
 
 	event onDefaultST()
 		anusRecoveryLimit = 0.25
-		SetSliderOptionValueST(anusRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(anusRecoveryLimit, "{2}")
 	endEvent
 endState
 
@@ -1130,12 +1114,12 @@ state vaginaRecoveryLimitST
 
 	event onSliderAcceptST(float value)
 		vaginaRecoveryLimit = value as float
-		SetSliderOptionValueST(vaginaRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(vaginaRecoveryLimit, "{2}")
 	endEvent
 
 	event onDefaultST()
 		vaginaRecoveryLimit = 0.25
-		SetSliderOptionValueST(vaginaRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(vaginaRecoveryLimit, "{2}")
 	endEvent
 endState
 
@@ -1149,12 +1133,12 @@ state legRecoveryLimitST
 
 	event onSliderAcceptST(float value)
 		legRecoveryLimit = value as float
-		SetSliderOptionValueST(legRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(legRecoveryLimit, "{2}")
 	endEvent
 
 	event onDefaultST()
 		legRecoveryLimit = 0.25
-		SetSliderOptionValueST(legRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(legRecoveryLimit, "{2}")
 	endEvent
 endState
 
@@ -1168,12 +1152,12 @@ state footRecoveryLimitST
 
 	event onSliderAcceptST(float value)
 		footRecoveryLimit = value as float
-		SetSliderOptionValueST(footRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(footRecoveryLimit, "{2}")
 	endEvent
 
 	event onDefaultST()
 		footRecoveryLimit = 0.25
-		SetSliderOptionValueST(footRecoveryLimit, "{0}%")
+		SetSliderOptionValueST(footRecoveryLimit, "{2}")
 	endEvent
 endState
 
@@ -1182,8 +1166,8 @@ endState
 ;################################################################################################################################################################
 state eyeAlterationRankST
 	event onSliderOpenST()
-		SetSliderDialogStartValue(dba_player.GetFactionRank(dba_Eye))
-		SetSliderDialogDefaultValue(dba_player.GetFactionRank(dba_Eye))
+		SetSliderDialogStartValue(BodyTicker.getEyeTime())
+		SetSliderDialogDefaultValue(BodyTicker.getEyeTime())
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
@@ -1196,8 +1180,8 @@ endState
 
 state mouthAlterationRankST
 	event onSliderOpenST()
-		SetSliderDialogStartValue(dba_player.GetFactionRank(dba_Mouth))
-		SetSliderDialogDefaultValue(dba_player.GetFactionRank(dba_Mouth))
+		SetSliderDialogStartValue(BodyTicker.getMouthTime())
+		SetSliderDialogDefaultValue(BodyTicker.getMouthTime())
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
@@ -1210,8 +1194,8 @@ endState
 
 state neckAlterationRankST
 	event onSliderOpenST()
-		SetSliderDialogStartValue(dba_player.GetFactionRank(dba_Neck))
-		SetSliderDialogDefaultValue(dba_player.GetFactionRank(dba_Neck))
+		SetSliderDialogStartValue(BodyTicker.getNeckTime())
+		SetSliderDialogDefaultValue(BodyTicker.getNeckTime())
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
@@ -1224,8 +1208,8 @@ endState
 
 state armAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(dba_player.GetFactionRank(dba_Arm))
-		SetSliderDialogDefaultValue(dba_player.GetFactionRank(dba_Arm))
+		SetSliderDialogStartValue(BodyTicker.getArmTime())
+		SetSliderDialogDefaultValue(BodyTicker.getArmTime())
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
@@ -1238,8 +1222,8 @@ endState
 
 state handAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(dba_player.GetFactionRank(dba_Hand))
-		SetSliderDialogDefaultValue(dba_player.GetFactionRank(dba_Hand))
+		SetSliderDialogStartValue(BodyTicker.getHandTime())
+		SetSliderDialogDefaultValue(BodyTicker.getHandTime())
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
@@ -1252,8 +1236,8 @@ endState
 
 state breastAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(dba_player.GetFactionRank(dba_Breast))
-		SetSliderDialogDefaultValue(dba_player.GetFactionRank(dba_Breast))
+		SetSliderDialogStartValue(BodyTicker.getBreastTime())
+		SetSliderDialogDefaultValue(BodyTicker.getBreastTime())
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
@@ -1266,8 +1250,8 @@ endState
 
 state waistAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(dba_player.GetFactionRank(dba_Waist))
-		SetSliderDialogDefaultValue(dba_player.GetFactionRank(dba_Waist))
+		SetSliderDialogStartValue(BodyTicker.getWaistTime())
+		SetSliderDialogDefaultValue(BodyTicker.getWaistTime())
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
@@ -1280,8 +1264,8 @@ endState
 
 state buttAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(dba_player.GetFactionRank(dba_Butt))
-		SetSliderDialogDefaultValue(dba_player.GetFactionRank(dba_Butt))
+		SetSliderDialogStartValue(BodyTicker.getButtTime())
+		SetSliderDialogDefaultValue(BodyTicker.getButtTime())
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
@@ -1294,8 +1278,8 @@ endState
 
 state anusAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(dba_player.GetFactionRank(dba_Anus))
-		SetSliderDialogDefaultValue(dba_player.GetFactionRank(dba_Anus))
+		SetSliderDialogStartValue(BodyTicker.getAnusTime())
+		SetSliderDialogDefaultValue(BodyTicker.getAnusTime())
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
@@ -1308,8 +1292,8 @@ endState
 
 state vaginaAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(dba_player.GetFactionRank(dba_Vagina))
-		SetSliderDialogDefaultValue(dba_player.GetFactionRank(dba_Vagina))
+		SetSliderDialogStartValue(BodyTicker.getVaginaTime())
+		SetSliderDialogDefaultValue(BodyTicker.getVaginaTime())
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
@@ -1322,8 +1306,8 @@ endState
 
 state legAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(dba_player.GetFactionRank(dba_Leg))
-		SetSliderDialogDefaultValue(dba_player.GetFactionRank(dba_Leg))
+		SetSliderDialogStartValue(BodyTicker.getLegTime())
+		SetSliderDialogDefaultValue(BodyTicker.getLegTime())
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
@@ -1336,28 +1320,28 @@ endState
 
 state footAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(dba_player.GetFactionRank(dba_Foot))
-		SetSliderDialogDefaultValue(dba_player.GetFactionRank(dba_Foot))
+		SetSliderDialogStartValue(BodyTicker.getFootTime())
+		SetSliderDialogDefaultValue(BodyTicker.getFootTime())
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setLegTime(value)
+		BodyTicker.setFootTime(value)
 		SetSliderOptionValueST(BodyTicker.getFootTime(), "{0}")
 	endEvent
 endState
 
 state weightAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(dba_player.GetFactionRank(dba_Weight))
-		SetSliderDialogDefaultValue(dba_player.GetFactionRank(dba_Weight))
+		SetSliderDialogStartValue(BodyTicker.getWeightTime())
+		SetSliderDialogDefaultValue(BodyTicker.getWeightTime())
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setWeight(value)
+		BodyTicker.setWeightTime(value)
 		SetSliderOptionValueST(BodyTicker.getWeightTime(), "{0}")
 	endEvent
 endState
@@ -1391,5 +1375,14 @@ state resetRanksST
 		SetSliderOptionValueST(0.0, "{0}", false, "legAlterationRankST")
 		SetSliderOptionValueST(0.0, "{0}", false, "footAlterationRankST")
 		SetSliderOptionValueST(0.0, "{0}", false, "weightAlterationRankST")
+
+		SetTextOptionValueST("Done")
+	endEvent
+endState
+
+state updateMenuST
+	event OnSelectST()
+		InitPages()
+		SetTextOptionValueST("Done, reopen menu")
 	endEvent
 endState
