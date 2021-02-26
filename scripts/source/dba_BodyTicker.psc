@@ -10,36 +10,37 @@ float GTlastupdate = 0.0
 float GTpassed = 0.0
 float Morphupdate = 0.0 
 float Transformupdate = 0.0 
+float NextUpdate = 0.0
 
-float eyetime = 0.0
+float property eyetime = 0.0 auto
 ;float eyehelper = 0.0
-float mouthtime = 0.0
+float property mouthtime = 0.0 auto
 ;float mouthhelper = 0.0
-float necktime = 0.0
-float armtime = 0.0
-float handtime = 0.0
-float breasttime = 0.0
-float waisttime = 0.0
-float butttime = 0.0
-float anustime = 0.0
-float vaginatime = 0.0
-float legtime = 0.0
-float foottime = 0.0
+float property necktime = 0.0 auto
+float property armtime = 0.0 auto
+float property handtime = 0.0 auto
+float property breasttime = 0.0 auto
+float property waisttime = 0.0 auto
+float property butttime = 0.0 auto
+float property anustime = 0.0 auto
+float property vaginatime = 0.0 auto
+float property legtime = 0.0 auto
+float property foottime = 0.0 auto
+float property weighttime = 0.0 auto
 
-float eyetimeMax = 0.0
-float mouthtimeMax = 0.0
-float necktimeMax = 0.0
-float armtimeMax = 0.0
-float handtimeMax = 0.0
-float breasttimeMax = 0.0
-float waisttimeMax = 0.0
-float butttimeMax = 0.0
-float anustimeMax = 0.0
-float vaginatimeMax = 0.0
-float legtimeMax = 0.0
-float foottimeMax = 0.0
+float property eyetimeMax = 0.0 auto
+float property mouthtimeMax = 0.0 auto
+float property necktimeMax = 0.0 auto
+float property armtimeMax = 0.0 auto
+float property handtimeMax = 0.0 auto
+float property breasttimeMax = 0.0 auto
+float property waisttimeMax = 0.0 auto
+float property butttimeMax = 0.0 auto
+float property anustimeMax = 0.0 auto
+float property vaginatimeMax = 0.0 auto
+float property legtimeMax = 0.0 auto
+float property foottimeMax = 0.0 auto
 
-float property weighttime = 0.0 Auto
 float weightcalc = 0.0 
 float speedmod = 0.0
 
@@ -68,6 +69,7 @@ event OnUpdate()
 		if MCMValue.MCMclose
 			resetAlterations()
 			NiOverride.UpdateModelWeight(dba_player)
+			
 			MCMValue.MCMclose = false
 		endif
 
@@ -79,8 +81,8 @@ event OnUpdate()
 
 		BodyTransform()
 		BodyMorph()
-
 		NiOverride.UpdateModelWeight(dba_player)
+
 		MCMValue.MCMclose = false
 		Debug.trace("DBA: MCM settings changed.")
 	endif
@@ -106,35 +108,32 @@ event OnUpdate()
 		CheckWalkingStatus()
 	endif
 
-	if Morphupdate < GTcurrent && !libs.IsAnimating(dba_player) && !isIdle()
-		BodyMorph()
-		if (MCMValue.comment)
-			randomComment()
-		endif
-		NiOverride.UpdateModelWeight(dba_player)
-		Morphupdate = GTcurrent + (MCMValue.morphtimer / 24)
-		
-		if MCMValue.debuglogenabled
-			Debug.trace("DBA: Morphupdate done= " + Morphupdate)
+	if NextUpdate < GTcurrent
+		if !libs.IsAnimating(dba_player) && !isIdle()
+			BodyMorph()
+			NiOverride.UpdateModelWeight(dba_player)
+			if MCMValue.debuglogenabled
+				Debug.trace("DBA: Morphupdate done.")
+			endif
+
+			if dba_player.GetAnimationVariableBool("IsFirstPerson")
+				BodyTransform()
+				if MCMValue.debuglogenabled
+					Debug.trace("DBA: Transformupdate done.")
+				endif
+			endif
+			
+			if (MCMValue.comment)
+				randomComment()
+			endif
+			NextUpdate = GTcurrent + (MCMValue.morphtimer / 24)
 		endif
 	endif
 
-	bool isFirstPerson = dba_player.GetAnimationVariableBool("IsFirstPerson")
-	if Transformupdate < GTcurrent && isFirstPerson && !libs.IsAnimating(dba_player) && !isIdle()
-		BodyTransform()
-		Transformupdate = Morphupdate
-
-		if MCMValue.debuglogenabled
-			Debug.trace("DBA: Transformupdate done= " + Transformupdate)
-		endif
-	endif
-
-	GTlastupdate = GTcurrent
-	
 	if MCMValue.debuglogenabled
-		Debug.trace("DBA: GTcurrent= " + GTcurrent + " ; GTlastupdate= " + GTlastupdate + " ; Morphupdate= " + Morphupdate + " ; Transformupdate= " + Transformupdate + " ; IdleStatus= " + isIdle())
+		Debug.trace("DBA: GTcurrent= " + GTcurrent + " ; GTlastupdate= " + GTlastupdate + " ; NextUpdate= " + NextUpdate + " ; IdleStatus= " + isIdle())
 	endif
-
+	GTlastupdate = GTcurrent
 	RegisterForSingleUpdate(MCMValue.UpdateTicker)
 endEvent 
 
@@ -224,11 +223,35 @@ function checkEye()
 			status = 1 ; control opening
 		endif
 
-		if status == 0 && eyetime > 0 && MCMValue.eyerecover > 0
-			eyetime -= GTpassed  * 14.29 * MCMValue.eyerecover
+		if status == 0 && MCMValue.eyerecover > 0 && eyetime > 0
+			eyetime -= GTpassed  * 14.29 * MCMValue.eyerecover ; eyetime multiplied by 14.29 is approx 7 days from 0 to 100
+
 			float eyetimeLimit = eyetimeMax * MCMvalue.eyeRecoveryLimit
 			if eyetime < eyetimeLimit
 				eyetime = eyetimeLimit
+			endif
+
+			if MCMvalue.eye > 0 ; alteration enabled, not wearing blindfold, alteration strength > 0
+				float squint = (eyetime * MCMValue.eye / 10000)	; slider setting multiplied with internal expressionmodifier Value is maxed at 10000
+				if (MCMValue.eyeAlt)
+					dba_player.setExpressionModifier(0, squint)
+					dba_player.setExpressionModifier(1, squint)
+				endif
+				dba_player.setExpressionModifier(2, squint)
+				dba_player.setExpressionModifier(3, squint)
+				dba_player.setExpressionModifier(6, squint)
+				dba_player.setExpressionModifier(7, squint)
+				dba_player.setExpressionModifier(12, squint)
+				dba_player.setExpressionModifier(13, squint)
+			else ; alteration strength at 0
+				dba_player.setExpressionModifier(0, 0.0)
+				dba_player.setExpressionModifier(1, 0.0)
+				dba_player.setExpressionModifier(2, 0.0)
+				dba_player.setExpressionModifier(3, 0.0)
+				dba_player.setExpressionModifier(6, 0.0)
+				dba_player.setExpressionModifier(7, 0.0)
+				dba_player.setExpressionModifier(12, 0.0)
+				dba_player.setExpressionModifier(13, 0.0)
 			endif
 		elseif status == 1 && eyetime < 100
 			eyetime += GTpassed * 14.29
@@ -238,32 +261,16 @@ function checkEye()
 			if eyetime > eyetimeMax
 				eyetimeMax = eyetime
 			endif
-		endif ; eyetime multiplied by 14.29 is approx 7 days from 0 to 100
-	endif
-
-	if !dba_player.WornHasKeyword(dditem[16])
-		if MCMvalue.eyeEnabled && MCMvalue.eye > 0
-			float squint = (eyetime * MCMValue.eye / 10000)	; slider setting multiplied with internal expressionmodifier Value is maxed at 10000
-			if (MCMValue.eyeAlt)
-				dba_player.setExpressionModifier(0, squint)
-				dba_player.setExpressionModifier(1, squint)
-			endif
-			dba_player.setExpressionModifier(2, squint)
-			dba_player.setExpressionModifier(3, squint)
-			dba_player.setExpressionModifier(6, squint)
-			dba_player.setExpressionModifier(7, squint)
-			dba_player.setExpressionModifier(12, squint)
-			dba_player.setExpressionModifier(13, squint)
-		else
-			dba_player.setExpressionModifier(0, 0.0)
-			dba_player.setExpressionModifier(1, 0.0)
-			dba_player.setExpressionModifier(2, 0.0)
-			dba_player.setExpressionModifier(3, 0.0)
-			dba_player.setExpressionModifier(6, 0.0)
-			dba_player.setExpressionModifier(7, 0.0)
-			dba_player.setExpressionModifier(12, 0.0)
-			dba_player.setExpressionModifier(13, 0.0)
 		endif
+	else ; alteration disabled
+		dba_player.setExpressionModifier(0, 0.0)
+		dba_player.setExpressionModifier(1, 0.0)
+		dba_player.setExpressionModifier(2, 0.0)
+		dba_player.setExpressionModifier(3, 0.0)
+		dba_player.setExpressionModifier(6, 0.0)
+		dba_player.setExpressionModifier(7, 0.0)
+		dba_player.setExpressionModifier(12, 0.0)
+		dba_player.setExpressionModifier(13, 0.0)
 	endif
 endFunction
 
@@ -274,32 +281,35 @@ function checkMouth()
 			status = 1 ; control opening
 		endif
 
-		if status == 0 && mouthtime > 0 && MCMValue.mouthrecover > 0
+		if status == 0 && MCMValue.mouthrecover > 0 && mouthtime > 0
 			mouthtime -= GTpassed * 14.29 * MCMValue.mouthrecover
+
 			float mouthtimeLimit = mouthtimeMax * MCMvalue.mouthRecoveryLimit
 			if mouthtime < mouthtimeLimit
 				mouthtime = mouthtimeLimit
 			endif
+
+			if MCMValue.mouth > 0 ; we don´t want facial expression change while wearing a gag
+				float opening = (mouthtime * MCMValue.mouth / 100) ; slider setting multiplied with internal phonememodifier Value is maxed at 100
+				setPhonemeModifier(dba_player, 0, 1, opening as int)
+				setPhonemeModifier(dba_player, 0, 11, (opening * 0.7) as int) ; using factor 0.7 to prevent it looking weired... more weired as it is
+			else
+				setPhonemeModifier(dba_player, 0, 1, 0)
+				setPhonemeModifier(dba_player, 0, 11, 0)
+			endif
 		elseif status == 1 && mouthtime < 100
-			mouthtime += GTpassed *14.29
+			mouthtime += GTpassed * 14.29 ; mouthtime multiplied by 14.29 is approx 7 days from 0 to 100
+
 			if mouthtime > 100
 				mouthtime = 100
 			endif
 			if mouthtime > mouthtimeMax
 				mouthtimeMax = mouthtime
 			endif
-		endif ; mouthtime multiplied by 14.29 is approx 7 days from 0 to 100
-	endif
-
-	if !dba_player.WornHasKeyword(dditem[5]) ; we don´t want facial expression change while wearing a gag
-		if MCMvalue.mouthEnabled && MCMValue.mouth > 0
-			float opening = (mouthtime * MCMValue.mouth / 100) ; slider setting multiplied with internal phonememodifier Value is maxed at 100
-			setPhonemeModifier(dba_player, 0, 1, opening as int)
-			setPhonemeModifier(dba_player, 0, 11, (opening * 0.7) as int) ; using factor 0.7 to prevent it looking weired... more weired as it is
-		else
-			setPhonemeModifier(dba_player, 0, 1, 0)
-			setPhonemeModifier(dba_player, 0, 11, 0)
 		endif
+	else
+		setPhonemeModifier(dba_player, 0, 1, 0)
+		setPhonemeModifier(dba_player, 0, 11, 0)
 	endif
 endFunction
 
@@ -310,21 +320,22 @@ function checkNeck()
 			status = 1 ; adjust length
 		endif
 
-		if status == 0 && necktime > 0 && MCMValue.neckrecover > 0
+		if status == 0 && MCMValue.neckrecover > 0 && necktime > 0
 			necktime -= GTpassed * 3.57 * MCMValue.neckrecover
 			float necktimeLimit = necktimeMax * MCMvalue.mouthRecoveryLimit
 			if necktime < necktimeLimit
 				necktime = necktimeLimit
 			endif
 		elseif status == 1 && necktime < 100
-			necktime += GTpassed * 3.57
+			necktime += GTpassed * 3.57 ; Necktime multiplied by 3.57 is approx 28 days from 0 to 100
+
 			if necktime > 100
 				necktime = 100
 			endif
 			if necktime > necktimeMax
 				necktimeMax = necktime
 			endif
-		endif ; Necktime multiplied by 3.57 is approx 28 days from 0 to 100
+		endif
 	endif
 endFunction
 
@@ -335,21 +346,23 @@ function checkArm()
 			status = 1 ; adjust muscle / arm thickness
 		endif
 
-		if status == 0 && armtime > 0 && MCMValue.armrecover > 0
+		if status == 0 && MCMValue.armrecover > 0 && armtime > 0
 			armtime -= GTpassed * 4.76 * MCMValue.armrecover
+
 			float armtimeLimit = armtimeMax * MCMvalue.armRecoveryLimit
 			if armtime < armtimeLimit
 				armtime = armtimeLimit
 			endif	
 		elseif status == 1 && armtime < 100
-			armtime += GTpassed * 4.76
+			armtime += GTpassed * 4.76 ; armtime multiplied by 4.76 is approx 21 days from 0 to 100
+
 			if armtime > 100
 				armtime = 100
 			endif
 			if armtime > armtimeMax
 				armtimeMax = armtime
 			endif
-		endif ; armtime multiplied by 4.76 is approx 21 days from 0 to 100
+		endif
 	endif
 endFunction
 
@@ -360,21 +373,23 @@ function checkHand()
 			status = 1 ; adjust ability
 		endif
 
-		if status == 0 && handtime > 0 && MCMValue.handrecover > 0
+		if status == 0 && MCMValue.handrecover > 0 && handtime > 0
 			handtime -= GTpassed * 4.76 * MCMValue.handrecover
+
 			float handtimeLimit = handtimeMax * MCMvalue.handRecoveryLimit
 			if handtime < handtimeLimit
 				handtime = handtimeLimit
 			endif
 		elseif status == 1 && handtime < 100
-			handtime += GTpassed * 4.76
+			handtime += GTpassed * 4.76 ; handtime multiplied by 4.76 is approx 21 days from 0 to 100
+
 			if handtime > 100
 				handtime = 100
 			endif
 			if handtime > handtimeMax
 				handtimeMax = handtime
 			endif
-		endif ; handtime multiplied by 4.76 is approx 21 days from 0 to 100
+		endif
 	endif
 endFunction
 
@@ -387,29 +402,27 @@ function checkBreast()
 			status = 2 ; fast growing boobs
 		endif
 
-		if status == 0 && breasttime > 0 && MCMValue.breastrecover > 0
-			breasttime -= GTpassed * 3.57 * MCMValue.breastrecover		
+		if status == 0 && MCMValue.breastrecover > 0 && breasttime > 0
+			breasttime -= GTpassed * 3.57 * MCMValue.breastrecover
+
 			float breasttimeLimit = breasttimeMax * MCMvalue.breastRecoveryLimit
 			if breasttime < breasttimeLimit
 				breasttime = breasttimeLimit
 			endif
-		elseif status == 1 && breasttime < 100
-			breasttime += GTpassed * 3.57
+		else
+			if status == 1 && breasttime < 100
+				breasttime += GTpassed * 3.57 ; breasttime multiplied by 3.57 is approx 28 days from 0 to 100
+			elseif status == 2 && breasttime < 100
+				breasttime += GTpassed * 1.5 * 3.57
+			endif
+
 			if breasttime > 100
 				breasttime = 100
 			endif
 			if breasttime > breasttimeMax
 				breasttimeMax = breasttime
 			endif
-		elseif status == 2 && breasttime < 100
-			breasttime += GTpassed * 1.5 * 3.57
-			if breasttime > 100
-				breasttime = 100
-			endif
-			if breasttime > breasttimeMax
-				breasttimeMax = breasttime
-			endif
-		endif ; breasttime multiplied by 3.57 is approx 28 days from 0 to 100
+		endif
 	endif
 endFunction
 
@@ -424,37 +437,29 @@ function checkWaist()
 			status = 1 ; slow shrinking waist
 		endif
 
-		if status == 0 && waisttime > 0 && MCMValue.waistrecover > 0
+		if status == 0 && MCMValue.waistrecover > 0 && waisttime > 0
 			waisttime -= GTpassed * 3.57 * MCMValue.waistrecover
+
 			float waisttimeLimit = waisttimeMax * MCMvalue.waistRecoveryLimit
 			if waisttime < waisttimeLimit
 				waisttime = waisttimeLimit
 			endif
-		elseif status == 1 && waisttime < 66 ; only with corset it is possible to shrink the waist completly
-			waisttime += GTpassed * 0.75 * 3.57
+		else
+			if status == 1 && waisttime < 66 ; only with corset it is possible to shrink the waist completly
+				waisttime += GTpassed * 0.75 * 3.57
+			elseif status == 2 && waisttime < 100
+				waisttime += GTpassed * 3.57 ; waisttime multiplied by 3.57 is approx 28 days from 0 to 100
+			elseif status == 3 && waisttime < 100
+				waisttime += GTpassed * 1.5 * 3.57
+			endif
+
 			if waisttime > 100
 				waisttime = 100
 			endif
 			if waisttime > waisttimeMax
 				waisttimeMax = waisttime
 			endif
-		elseif status == 2 && waisttime < 100
-			waisttime += GTpassed * 3.57
-			if waisttime > 100
-				waisttime = 100
-			endif
-			if waisttime > waisttimeMax
-				waisttimeMax = waisttime
-			endif
-		elseif status == 3 && waisttime < 100
-			waisttime += GTpassed * 1.5 * 3.57
-			if waisttime > 100
-				waisttime = 100
-			endif
-			if waisttime > waisttimeMax
-				waisttimeMax = waisttime
-			endif
-		endif ; waisttime multiplied by 3.57 is approx 28 days from 0 to 100
+		endif
 	endif
 endFunction
 
@@ -465,21 +470,23 @@ function checkButt()
 			status = 1 ; growing butt
 		endif
 
-		if status == 0 && butttime > 0 && MCMValue.buttrecover > 0
-			butttime -= GTpassed * 4.76	* MCMValue.buttrecover
+		if status == 0 && MCMValue.buttrecover > 0 && butttime > 0
+			butttime -= GTpassed * 4.76	* MCMValue.buttrecover ; butttime multiplied by 4.76 is approx 21 days from 0 to 100
+
 			float butttimeLimit = butttimeMax * MCMvalue.buttRecoveryLimit
 			if butttime < butttimeLimit
 				butttime = butttimeLimit
 			endif
 		elseif status == 1 && butttime < 100
 			butttime += GTpassed * 4.76
+			
 			if butttime > 100
 				butttime = 100
 			endif
 			if butttime > butttimeMax
 				butttimeMax = butttime
 			endif
-		endif ; butttime multiplied by 4.76 is approx 21 days from 0 to 100
+		endif
 	endif
 endFunction
 
@@ -490,21 +497,23 @@ function checkAnus()
 			status = 1 ; anus widening
 		endif
 
-		if status == 0 && anustime > 0 && MCMValue.anusrecover > 0
+		if status == 0 && MCMValue.anusrecover > 0 && anustime > 0
 			anustime -= GTpassed * 4.76 * MCMValue.anusrecover
+
 			float anustimeLimit = anustimeMax * MCMvalue.anusRecoveryLimit
 			if anustime < anustimeLimit
 				anustime = anustimeLimit
 			endif
 		elseif status == 1 && anustime < 100
-			anustime += GTpassed * 4.76
+			anustime += GTpassed * 4.76 ; anustime multiplied by 4.76 is approx 21 days from 0 to 100
+
 			if anustime > 100
 				anustime = 100
 			endif
 			if anustime > anustimeMax
 				anustimeMax = anustime
 			endif
-		endif ; anustime multiplied by 4.76 is approx 21 days from 0 to 100
+		endif
 	endif
 endFunction
 
@@ -515,21 +524,23 @@ function checkVagina()
 			status = 1 ; vagina widening
 		endif
 
-		if status == 0 && vaginatime > 0 && MCMValue.vaginarecover > 0
-			vaginatime -= GTpassed * 7.14 * MCMValue.vaginarecover
+		if status == 0 && MCMValue.vaginarecover > 0 && vaginatime > 0
+			vaginatime -= GTpassed * 7.14 * MCMValue.vaginarecover ; vaginatime multiplied by 7.14 is approx 14 days from 0 to 100
+
 			float vaginatimeLimit = vaginatimeMax * MCMvalue.vaginaRecoveryLimit
 			if vaginatime < vaginatimeLimit
 				vaginatime = vaginatimeLimit
 			endif
 		elseif status == 1 && vaginatime < 100
 			vaginatime += GTpassed * 7.14
+
 			if vaginatime > 100
 				vaginatime = 100
 			endif
 			if vaginatime > vaginatimeMax
 				vaginatimeMax = vaginatime
 			endif
-		endif ; vaginatime multiplied by 7.14 is approx 14 days from 0 to 100
+		endif
 	endif
 endFunction
 
@@ -540,21 +551,23 @@ function checkLeg()
 			status = 1	; leg muscle loss
 		endif
 
-		if status == 0 && legtime > 0 && MCMValue.legrecover > 0
-			legtime -= GTpassed * 4.76 * MCMValue.legrecover
+		if status == 0 && MCMValue.legrecover > 0 && legtime > 0
+			legtime -= GTpassed * 4.76 * MCMValue.legrecover ; legtime multiplied by 4.76 is approx 21 days from 0 to 100
+
 			float legtimeLimit = legtimeMax * MCMvalue.legRecoveryLimit
 			if legtime < legtimeLimit
 				legtime = legtimeLimit
 			endif
 		elseif status == 1 && legtime < 100
 			legtime += GTpassed * 4.76
+
 			if legtime > 100
 				legtime = 100
 			endif
 			if legtime > legtimeMax
 				legtimeMax > legtime
 			endif
-		endif ; legtime multiplied by 4.76 is approx 21 days from 0 to 100
+		endif
 	endif
 endFunction
 
@@ -569,24 +582,26 @@ function checkFoot()
 			status = 2 ; Altered feet
 		endif
 
-		if status == 0 && foottime > 0 && MCMValue.footrecover > 0
-			foottime -= GTpassed * 3.57 * MCMValue.footrecover
-			float foottimeLimit = foottimeMax * MCMvalue.footRecoveryLimit
-			if foottime < foottimeLimit
-				foottime = foottimeLimit
-			endif
-		elseif status == 1 && foottime < 100 ; Devious boots will lead to extrem shortend Achilles
-			foottime += GTpassed * 3.57
-		elseif status == 2 && foottime < 80 ; High Heels will damage your Achilles
-			foottime += GTpassed * 3.57
-		endif ; foottime multiplied by 3.57 is approx 28 days from 0 to 100
+		if status == 0
+			if MCMValue.footrecover > 0 && foottime > 0
+				foottime -= GTpassed * 3.57 * MCMValue.footrecover ; foottime multiplied by 3.57 is approx 28 days from 0 to 100
 
-		if foottime >= 75
-			if dba_player.getWornForm(Slot37) != AlteredFeet && status == 0 && isFemale && !MCMvalue.yps
-				dba_player.unequipItemSlot(37)
-				Debug.Notification("You can only walk on your tippy toes or high heels with your altered feet.")
-				dba_player.equipitem(AlteredFeet, false, true)
+				float foottimeLimit = foottimeMax * MCMvalue.footRecoveryLimit
+				if foottime < foottimeLimit
+					foottime = foottimeLimit
+				endif
 			endif
+
+			if foottime >= 75
+				if isFemale && !MCMvalue.yps && dba_player.getWornForm(Slot37) != AlteredFeet
+					dba_player.unequipItemSlot(37)
+					Debug.Notification("You can only walk on your tippy toes or high heels with your altered feet.")
+					dba_player.equipitem(AlteredFeet, false, true)
+				endif
+			endif
+		elseif (status == 1 && foottime < 100) || (status == 2 && foottime < 80) ; High Heels will damage your Achilles
+			foottime += GTpassed * 3.57 ; Devious boots will lead to extrem shortend Achilles
+
 			if foottime > 100
 				foottime = 100
 			endif
@@ -606,11 +621,13 @@ function checkWeight()
 
 		if status == 0 && weighttime < 100 ; status 0 assuming you will eat to replenisch lost weight. TODO: find a good solution to use food in game.
 			weighttime += GTpassed * 0.5 ; slow weight increase
+
 			if weighttime > 100.0
 				weighttime = 100.0
 			endif
 		elseif status == 1 && weighttime > 0
 			weighttime -= GTpassed * 2.0 ; multiplied by 2.0 is 50 days from 100 to 0
+
 			if weighttime < 0.0
 				weighttime = 0.0
 			endif
@@ -1066,6 +1083,8 @@ function Comment()
 endFunction
 
 function resetAlterations()
+	dba_player.setExpressionModifier(0, 0.0)
+	dba_player.setExpressionModifier(1, 0.0)
 	dba_player.SetExpressionModifier(2, 0.0)
 	dba_player.SetExpressionModifier(3, 0.0)
 	dba_player.SetExpressionModifier(6, 0.0)
@@ -1104,6 +1123,8 @@ function resetAlterations()
 	setMorphValue(dba_player, 0.0, "BigButt")
 	setMorphValue(dba_Player, 0.0, "AppleCheeks")
 
+	setMorphValue(dba_player, 0.0, "AnusSpread")
+
 	AddNodeTransformScale(dba_player,false, true, "NPC L Pussy02", 1.0)
 	AddNodeTransformScale(dba_player,false, true, "NPC R Pussy02", 1.0)
 
@@ -1113,124 +1134,4 @@ function resetAlterations()
 	dba_player.restoreAV("SpeedMult", speedmod)
 	dba_Player.damageActorValue("Carryweight", 0.02)
 	dba_Player.restoreActorValue("Carryweight", 0.02)
-endFunction
-
-; ################################################### setX funcs to acces values from MCM menu KEKW ###################################################
-
-function setEyeTime(float value)
-	eyetime = value
-	eyetimeMax = eyetime
-endFunction
-
-function setMouthTime(float value)
-	mouthtime = value
-	mouthtimeMax = mouthtime
-endFunction
-
-function setNeckTime(float value)
-	necktime = value
-	necktimeMax = necktime
-endFunction
-
-function setArmTime(float value)
-	armtime = value
-	armtimeMax = armtime
-endFunction
-
-function setHandTime(float value)
-	handtime = value
-	handtimeMax = handtime
-endFunction
-
-function setBreastTime(float value)
-	breasttime = value
-	breasttimeMax = breasttime
-endFunction
-
-function setWaistTime(float value)
-	waisttime = value
-	waisttimeMax = waisttime
-endFunction
-
-function setButtTime(float value)
-	butttime = value
-	butttimeMax = butttime
-endFunction
-
-function setAnusTime(float value)
-	anustime = value
-	anustimeMax = anustime
-endFunction
-
-function setVaginaTime(float value)
-	vaginatime = value
-	vaginatimeMax = vaginatime
-endFunction
-
-function setLegTime(float value)
-	legtime = value
-	legtimeMax = legtime
-endFunction
-
-function setFootTime(float value)
-	foottime = value
-	foottimeMax = foottime
-endFunction
-
-function setWeightTime(float value)
-	weighttime = value
-endFunction
-
-; ################################################### getX funcs to acces values from MCM menu KEKW ###################################################
-
-float function getEyeTime()
-	return eyetime
-endFunction
-
-float function getMouthTime()
-	return mouthtime
-endFunction
-
-float function getNeckTime()
-	return necktime
-endFunction
-
-float function getArmTime()
-	return armtime
-endFunction
-
-float function getHandTime()
-	return handtime
-endFunction
-
-float function getBreastTime()
-	return breasttime
-endFunction
-
-float function getWaistTime()
-	return waisttime
-endFunction
-
-float function getButtTime()
-	return butttime
-endFunction
-
-float function getAnusTime()
-	return anustime
-endFunction
-
-float function getVaginaTime()
-	return vaginatime
-endFunction
-
-float function getLegTime()
-	return legtime
-endFunction
-
-float function getFootTime()
-	return foottime
-endFunction
-
-float function getWeightTime()
-	return weighttime
 endFunction

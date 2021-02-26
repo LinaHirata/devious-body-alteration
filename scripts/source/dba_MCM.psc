@@ -1166,201 +1166,226 @@ endState
 ;################################################################################################################################################################
 state eyeAlterationRankST
 	event onSliderOpenST()
-		SetSliderDialogStartValue(BodyTicker.getEyeTime())
-		SetSliderDialogDefaultValue(BodyTicker.getEyeTime())
+		SetSliderDialogStartValue(BodyTicker.eyetime)
+		SetSliderDialogDefaultValue(BodyTicker.eyetime)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setEyeTime(value)
-		SetSliderOptionValueST(BodyTicker.getEyeTime(), "{0}")
+		BodyTicker.eyetime = value
+		BodyTicker.eyetimeMax = value
+		SetSliderOptionValueST(BodyTicker.eyetime, "{0}")
 	endEvent
 endState
 
 state mouthAlterationRankST
 	event onSliderOpenST()
-		SetSliderDialogStartValue(BodyTicker.getMouthTime())
-		SetSliderDialogDefaultValue(BodyTicker.getMouthTime())
+		SetSliderDialogStartValue(BodyTicker.mouthtime)
+		SetSliderDialogDefaultValue(BodyTicker.mouthtime)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setMouthTime(value)
-		SetSliderOptionValueST(BodyTicker.getMouthTime(), "{0}")
+		BodyTicker.mouthtime = value
+		BodyTicker.mouthtimeMax = value
+		SetSliderOptionValueST(BodyTicker.mouthtime, "{0}")
 	endEvent
 endState
 
 state neckAlterationRankST
 	event onSliderOpenST()
-		SetSliderDialogStartValue(BodyTicker.getNeckTime())
-		SetSliderDialogDefaultValue(BodyTicker.getNeckTime())
+		SetSliderDialogStartValue(BodyTicker.necktime)
+		SetSliderDialogDefaultValue(BodyTicker.necktime)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setNeckTime(value)
-		SetSliderOptionValueST(BodyTicker.getNeckTime(), "{0}")
+		BodyTicker.necktime = value
+		BodyTicker.necktimeMax = value
+		SetSliderOptionValueST(BodyTicker.necktime, "{0}")
 	endEvent
 endState
 
 state armAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(BodyTicker.getArmTime())
-		SetSliderDialogDefaultValue(BodyTicker.getArmTime())
+		SetSliderDialogStartValue(BodyTicker.armtime)
+		SetSliderDialogDefaultValue(BodyTicker.armtime)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setArmTime(value)
-		SetSliderOptionValueST(BodyTicker.getArmTime(), "{0}")
+		BodyTicker.armtime = value
+		BodyTicker.armtimeMax = value
+		SetSliderOptionValueST(BodyTicker.armtime, "{0}")
 	endEvent
 endState
 
 state handAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(BodyTicker.getHandTime())
-		SetSliderDialogDefaultValue(BodyTicker.getHandTime())
+		SetSliderDialogStartValue(BodyTicker.handtime)
+		SetSliderDialogDefaultValue(BodyTicker.handtime)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setHandTime(value)
-		SetSliderOptionValueST(BodyTicker.getHandTime(), "{0}")
+		BodyTicker.handtime = value
+		BodyTicker.handtimeMax = value
+		SetSliderOptionValueST(BodyTicker.handtime, "{0}")
 	endEvent
 endState
 
 state breastAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(BodyTicker.getBreastTime())
-		SetSliderDialogDefaultValue(BodyTicker.getBreastTime())
+		SetSliderDialogStartValue(BodyTicker.breasttime)
+		SetSliderDialogDefaultValue(BodyTicker.breasttime)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setBreastTime(value)
-		SetSliderOptionValueST(BodyTicker.getBreastTime(), "{0}")
+		BodyTicker.breasttime = value
+		BodyTicker.breasttimeMax = value
+		SetSliderOptionValueST(BodyTicker.breasttime, "{0}")
 	endEvent
 endState
 
 state waistAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(BodyTicker.getWaistTime())
-		SetSliderDialogDefaultValue(BodyTicker.getWaistTime())
+		SetSliderDialogStartValue(BodyTicker.waisttime)
+		SetSliderDialogDefaultValue(BodyTicker.waisttime)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setWaistTime(value)
-		SetSliderOptionValueST(BodyTicker.getWaistTime(), "{0}")
+		BodyTicker.waisttime = value
+		BodyTicker.waisttimeMax = value
+		SetSliderOptionValueST(BodyTicker.waisttime, "{0}")
 	endEvent
 endState
 
 state buttAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(BodyTicker.getButtTime())
-		SetSliderDialogDefaultValue(BodyTicker.getButtTime())
+		SetSliderDialogStartValue(BodyTicker.butttime)
+		SetSliderDialogDefaultValue(BodyTicker.butttime)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setButtTime(value)
-		SetSliderOptionValueST(BodyTicker.getButtTime(), "{0}")
+		BodyTicker.butttime = value
+		BodyTicker.butttimeMax = value
+		SetSliderOptionValueST(BodyTicker.butttime, "{0}")
 	endEvent
 endState
 
 state anusAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(BodyTicker.getAnusTime())
-		SetSliderDialogDefaultValue(BodyTicker.getAnusTime())
+		SetSliderDialogStartValue(BodyTicker.anustime)
+		SetSliderDialogDefaultValue(BodyTicker.anustime)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setAnusTime(value)
-		SetSliderOptionValueST(BodyTicker.getAnusTime(), "{0}")
+		BodyTicker.anustime = value
+		BodyTicker.anustimeMax = value
+		SetSliderOptionValueST(BodyTicker.anustime, "{0}")
 	endEvent
 endState
 
 state vaginaAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(BodyTicker.getVaginaTime())
-		SetSliderDialogDefaultValue(BodyTicker.getVaginaTime())
+		SetSliderDialogStartValue(BodyTicker.vaginatime)
+		SetSliderDialogDefaultValue(BodyTicker.vaginatime)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setVaginaTime(value)
-		SetSliderOptionValueST(BodyTicker.getVaginaTime(), "{0}")
+		BodyTicker.vaginatime = value
+		BodyTicker.vaginatimeMax = value
+		SetSliderOptionValueST(BodyTicker.vaginatime, "{0}")
 	endEvent
 endState
 
 state legAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(BodyTicker.getLegTime())
-		SetSliderDialogDefaultValue(BodyTicker.getLegTime())
+		SetSliderDialogStartValue(BodyTicker.legtime)
+		SetSliderDialogDefaultValue(BodyTicker.legtime)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setLegTime(value)
-		SetSliderOptionValueST(BodyTicker.getLegTime(), "{0}")
+		BodyTicker.legtime = value
+		BodyTicker.legtimeMax = value
+		SetSliderOptionValueST(BodyTicker.legtime, "{0}")
 	endEvent
 endState
 
 state footAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(BodyTicker.getFootTime())
-		SetSliderDialogDefaultValue(BodyTicker.getFootTime())
+		SetSliderDialogStartValue(BodyTicker.foottime)
+		SetSliderDialogDefaultValue(BodyTicker.foottime)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setFootTime(value)
-		SetSliderOptionValueST(BodyTicker.getFootTime(), "{0}")
+		BodyTicker.foottime = value
+		BodyTicker.foottimeMax = value
+		SetSliderOptionValueST(BodyTicker.foottime, "{0}")
 	endEvent
 endState
 
 state weightAlterationRankST
 	event onSliderOpenST() 
-		SetSliderDialogStartValue(BodyTicker.getWeightTime())
-		SetSliderDialogDefaultValue(BodyTicker.getWeightTime())
+		SetSliderDialogStartValue(BodyTicker.weighttime)
+		SetSliderDialogDefaultValue(BodyTicker.weighttime)
 		SetSliderDialogRange(0, 100)
 		SetSliderDialogInterval(1)
 	endEvent
 
 	event onSliderAcceptST(float value)
-		BodyTicker.setWeightTime(value)
-		SetSliderOptionValueST(BodyTicker.getWeightTime(), "{0}")
+		BodyTicker.weighttime = value
+		SetSliderOptionValueST(BodyTicker.weighttime, "{0}")
 	endEvent
 endState
 
 state resetRanksST
 	event OnSelectST()
-		BodyTicker.setEyeTime(0.0)
-		BodyTicker.setMouthTime(0.0)
-		BodyTicker.setNeckTime(0.0)
-		BodyTicker.setArmTime(0.0)
-		BodyTicker.setHandTime(0.0)
-		BodyTicker.setBreastTime(0.0)
-		BodyTicker.setWaistTime(0.0)
-		BodyTicker.setButtTime(0.0)
-		BodyTicker.setAnusTime(0.0)
-		BodyTicker.setVaginaTime(0.0)
-		BodyTicker.setLegTime(0.0)
-		BodyTicker.setFootTime(0.0)
-		BodyTicker.setWeightTime(0.0)
+		BodyTicker.eyetime = 0.0
+		BodyTicker.mouthtime = 0.0
+		BodyTicker.necktime = 0.0
+		BodyTicker.armtime = 0.0
+		BodyTicker.handtime = 0.0
+		BodyTicker.breasttime = 0.0
+		BodyTicker.waisttime = 0.0
+		BodyTicker.butttime = 0.0
+		BodyTicker.anustime = 0.0
+		BodyTicker.vaginatime = 0.0
+		BodyTicker.legtime = 0.0
+		BodyTicker.foottime = 0.0
+		BodyTicker.weighttime = 0.0
+
+		BodyTicker.eyetimeMax = 0.0
+		BodyTicker.mouthtimeMax = 0.0
+		BodyTicker.necktimeMax = 0.0
+		BodyTicker.armtimeMax = 0.0
+		BodyTicker.handtimeMax = 0.0
+		BodyTicker.breasttimeMax = 0.0
+		BodyTicker.waisttimeMax = 0.0
+		BodyTicker.butttimeMax = 0.0
+		BodyTicker.anustimeMax = 0.0
+		BodyTicker.vaginatimeMax = 0.0
+		BodyTicker.legtimeMax = 0.0
+		BodyTicker.foottimeMax = 0.0
 
 		SetSliderOptionValueST(0.0, "{0}", false, "eyeAlterationRankST")
 		SetSliderOptionValueST(0.0, "{0}", false, "mouthAlterationRankST")
