@@ -4,6 +4,7 @@ dba_MCM property MCMValue Auto
 Actor property dba_player Auto
 zadlibs property libs Auto
 import MfgConsoleFunc
+import po3_SKSEFunctions
 
 float GTcurrent = 0.0
 float GTlastupdate = 0.0
@@ -935,15 +936,11 @@ function randomComment()
 	comment()
 	int i = 0
 
-	int r1 = utility.randomInt(0, 11)
-	int r2 = utility.randomInt(0, 11)
+	int r1 = GenerateRandomInt(0, 12)
+	int r2 = GenerateRandomInt(0, 12)
 
-	int placeholder = 12
-	if MCMvalue.ypspresent
-		placeholder = 11
-	endif
-	while i < placeholder
-		if altstatus[i] != "(untrained)" && (r1 == i || r2 == i)
+	while i < 13
+		if (r1 == i || r2 == i) && altstatus[i] != "(untrained)"
 			debug.notification(altstatus[i])
 		endif
 		i += 1

@@ -1,4 +1,6 @@
-Scriptname dba_MCM extends SKI_ConfigBase  
+Scriptname dba_MCM extends SKI_ConfigBase
+
+import po3_SKSEFunctions
 
 dba_BodyTicker Property BodyTicker Auto
 Actor Property dba_player Auto
@@ -238,13 +240,13 @@ function InitPages()
 		dba_player.AddToFaction(dba_Weight)
 	endif
 
-	Pages = new string[5]
+	Pages = new string[6]
 	Pages[0] = "General"
 	Pages[1] = "Alteration"
 	Pages[2] = "Recovery"
 	Pages[3] = "Status"
-	;Pages[4] = "Help"
 	Pages[4] = "Debug"
+	Pages[5] = "Aux"
 endFunction
 
 event OnConfigClose()
@@ -395,13 +397,21 @@ event OnPageReset(string page)
 		AddTextOptionST("resetRanksST", "Reset ranks", "")
 	endif
 
-	;if (page == "Help")
-		
-	;endif
-
 	if (page == "Debug")
 		debuglogenabledOID = AddToggleOption("Debug to log", debuglogenabled)
 		debugenabledOID = AddToggleOption("Debug notifications", debugenabled)
+	endif
+
+	if (page == "disable")
+		MagicEffect[] playerEffect = GetAllActiveEffectsOnActor(dba_player, true)
+		int i = 0
+		while i < playerEffect.length
+			if i == 63
+				SetCursorPosition(1)
+			endif
+			AddTextOption(playerEffect[i].GetName(), "")
+			i += 1
+		endwhile
 	endif
 endEvent
 

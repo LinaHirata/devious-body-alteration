@@ -1,6 +1,7 @@
 Optimization:
 Bring MCM to one style (single event or States)
 Recode BodyTicker
+Add update states (check if update is actually needed)
 Redo Movement Speed effect
 Add translation files(?)
 
