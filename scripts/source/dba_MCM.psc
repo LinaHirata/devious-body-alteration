@@ -96,6 +96,19 @@ float property vaginaRecoveryLimit 	= 0.25 auto
 float property legRecoveryLimit 	= 0.25 auto
 float property footRecoveryLimit 	= 0.25 auto
 
+bool property eyesResetQueued = false auto
+bool property mouthResetQueued = false auto
+bool property neckResetQueued = false auto
+bool property armsResetQueued = false auto
+bool property breastsResetQueued = false auto
+bool property waistResetQueued = false auto
+bool property buttResetQueued = false auto
+bool property anusResetQueued = false auto
+bool property vaginaResetQueued = false auto
+bool property legsResetQueued = false auto
+bool property feetResetQueued = false auto
+bool property movSpeedResetQueued = false auto
+
 bool property debuglogenabled = true Auto
 bool property debugenabled = true Auto
 bool property MCMclose = false Auto

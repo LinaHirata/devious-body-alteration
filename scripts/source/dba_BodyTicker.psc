@@ -3,6 +3,7 @@ Scriptname dba_BodyTicker extends Quest Hidden
 dba_MCM property MCMValue Auto
 Actor property dba_player Auto
 zadlibs property libs Auto
+
 import MfgConsoleFunc
 import po3_SKSEFunctions
 
@@ -52,7 +53,6 @@ Armor property AlteredFeet Auto
 Armor Property CinderellaFeetItem Auto
 int Property Slot37 = 0x00000080 AutoReadOnly ; Feet
 
-
 event OnInit()
 	utility.wait(5.0) ; wait first, to reduce game save load (and crash chance)
 
@@ -68,43 +68,73 @@ endEvent
 event OnUpdate()
 	if !MCMValue.modenabled
 		if MCMValue.MCMclose
-			resetAlterations()
+			resetAlterations(false)
 			NiOverride.UpdateModelWeight(dba_player)
 			
 			MCMValue.MCMclose = false
 		endif
 
+		if MCMValue.debuglogenabled
+			Debug.trace("DBA: Mod disabled.")
+		endif
 		RegisterForSingleUpdate(MCMValue.UpdateTicker)
-		return Debug.trace("DBA: Mod disabled.")
+		return
 	elseif MCMValue.MCMclose
 		resetAlterations()
 		utility.wait(2)
 
-		BodyTransform()
 		BodyMorph()
 		NiOverride.UpdateModelWeight(dba_player)
+		BodyTransform()
 
 		MCMValue.MCMclose = false
-		Debug.trace("DBA: MCM settings changed.")
+		if MCMValue.debuglogenabled
+			Debug.trace("DBA: MCM settings changed.")
+		endif
 	endif
 
 	GTcurrent = Utility.GetCurrentGameTime()
 	GTpassed = (GTcurrent - GTlastupdate) * MCMValue.speed
 
-	checkEye()
-	checkMouth()
-	checkNeck()
-	checkArm()
-	checkHand()
-	checkBreast()
-	checkWaist()
-	checkButt()
-	checkAnus()
-	checkVagina()
-	checkLeg()
-	checkFoot()
-	checkWeight()
-
+	if MCMValue.eyeEnabled
+		checkEye()
+	endif
+	if MCMValue.mouthEnabled
+		checkMouth()
+	endif
+	if MCMValue.neckEnabled
+		checkNeck()
+	endif
+	if MCMValue.armEnabled
+		checkArm()
+	endif
+	if MCMValue.handEnabled
+		checkHand()
+	endif
+	if MCMValue.breastEnabled
+		checkBreast()
+	endif
+	if MCMValue.waistEnabled
+		checkWaist()
+	endif
+	if MCMValue.buttEnabled
+		checkButt()
+	endif
+	if MCMValue.anusEnabled
+		checkAnus()
+	endif
+	if MCMValue.vaginaEnabled
+		checkVagina()
+	endif
+	if MCMValue.legEnabled
+		checkLeg()
+	endif
+	if MCMValue.footEnabled
+		checkFoot()
+	endif
+	if MCMValue.weight
+		checkWeight()
+	endif
 	if MCMValue.walkingspeed
 		CheckWalkingStatus()
 	endif
@@ -170,7 +200,7 @@ function InitVariables()
 	
 	int i
 	altstatus = new String[20]
-	while i < 12
+	while i < 13
 		altstatus[i] = "(untrained)"
 		i += 1
 	endwhile
@@ -218,420 +248,382 @@ bool function isIdle()
 endFunction
 
 function checkEye()
-	if MCMvalue.eyeEnabled
-		int status = 0
-		if dba_player.WornHasKeyword(dditem[16])
-			status = 1 ; control opening
+	int status = 0
+	if dba_player.WornHasKeyword(dditem[16])
+		status = 1 ; control opening
+	endif
+
+	if status == 0 && MCMValue.eyerecover > 0 && eyetime > 0
+		eyetime -= GTpassed  * 14.29 * MCMValue.eyerecover ; eyetime multiplied by 14.29 is approx 7 days from 0 to 100
+
+		float eyetimeLimit = eyetimeMax * MCMvalue.eyeRecoveryLimit
+		if eyetime < eyetimeLimit
+			eyetime = eyetimeLimit
 		endif
 
-		if status == 0 && MCMValue.eyerecover > 0 && eyetime > 0
-			eyetime -= GTpassed  * 14.29 * MCMValue.eyerecover ; eyetime multiplied by 14.29 is approx 7 days from 0 to 100
-
-			float eyetimeLimit = eyetimeMax * MCMvalue.eyeRecoveryLimit
-			if eyetime < eyetimeLimit
-				eyetime = eyetimeLimit
+		if MCMvalue.eye > 0 ; alteration enabled, not wearing blindfold, alteration strength > 0
+			float squint = (eyetime * MCMValue.eye / 10000)	; slider setting multiplied with internal expressionmodifier Value is maxed at 10000
+			if (MCMValue.eyeAlt)
+				dba_player.setExpressionModifier(0, squint)
+				dba_player.setExpressionModifier(1, squint)
 			endif
-
-			if MCMvalue.eye > 0 ; alteration enabled, not wearing blindfold, alteration strength > 0
-				float squint = (eyetime * MCMValue.eye / 10000)	; slider setting multiplied with internal expressionmodifier Value is maxed at 10000
-				if (MCMValue.eyeAlt)
-					dba_player.setExpressionModifier(0, squint)
-					dba_player.setExpressionModifier(1, squint)
-				endif
-				dba_player.setExpressionModifier(2, squint)
-				dba_player.setExpressionModifier(3, squint)
-				dba_player.setExpressionModifier(6, squint)
-				dba_player.setExpressionModifier(7, squint)
-				dba_player.setExpressionModifier(12, squint)
-				dba_player.setExpressionModifier(13, squint)
-			else ; alteration strength at 0
-				dba_player.setExpressionModifier(0, 0.0)
-				dba_player.setExpressionModifier(1, 0.0)
-				dba_player.setExpressionModifier(2, 0.0)
-				dba_player.setExpressionModifier(3, 0.0)
-				dba_player.setExpressionModifier(6, 0.0)
-				dba_player.setExpressionModifier(7, 0.0)
-				dba_player.setExpressionModifier(12, 0.0)
-				dba_player.setExpressionModifier(13, 0.0)
-			endif
-		elseif status == 1 && eyetime < 100
-			eyetime += GTpassed * 14.29
-			if eyetime > 100
-				eyetime = 100
-			endif
-			if eyetime > eyetimeMax
-				eyetimeMax = eyetime
-			endif
+			dba_player.setExpressionModifier(2, squint)
+			dba_player.setExpressionModifier(3, squint)
+			dba_player.setExpressionModifier(6, squint)
+			dba_player.setExpressionModifier(7, squint)
+			dba_player.setExpressionModifier(12, squint)
+			dba_player.setExpressionModifier(13, squint)
 		endif
-	else ; alteration disabled
-		dba_player.setExpressionModifier(0, 0.0)
-		dba_player.setExpressionModifier(1, 0.0)
-		dba_player.setExpressionModifier(2, 0.0)
-		dba_player.setExpressionModifier(3, 0.0)
-		dba_player.setExpressionModifier(6, 0.0)
-		dba_player.setExpressionModifier(7, 0.0)
-		dba_player.setExpressionModifier(12, 0.0)
-		dba_player.setExpressionModifier(13, 0.0)
+	elseif status == 1 && eyetime < 100
+		eyetime += GTpassed * 14.29
+		if eyetime > 100
+			eyetime = 100
+		endif
+		if eyetime > eyetimeMax
+			eyetimeMax = eyetime
+		endif
+	endif
+
+	if MCMValue.debuglogenabled
+		Debug.trace("DBA: Eye Expression set. Eyetime= " + eyetime + "; eyeAlt= " + MCMValue.eyeAlt)
 	endif
 endFunction
 
 function checkMouth()
-	if MCMvalue.mouthEnabled
-		int status = 0
-		if dba_player.WornHasKeyword(dditem[5])
-			status = 1 ; control opening
+	int status = 0
+	if dba_player.WornHasKeyword(dditem[5])
+		status = 1 ; control opening
+	endif
+
+	if status == 0 && MCMValue.mouthrecover > 0 && mouthtime > 0
+		mouthtime -= GTpassed * 14.29 * MCMValue.mouthrecover
+
+		float mouthtimeLimit = mouthtimeMax * MCMvalue.mouthRecoveryLimit
+		if mouthtime < mouthtimeLimit
+			mouthtime = mouthtimeLimit
 		endif
 
-		if status == 0 && MCMValue.mouthrecover > 0 && mouthtime > 0
-			mouthtime -= GTpassed * 14.29 * MCMValue.mouthrecover
-
-			float mouthtimeLimit = mouthtimeMax * MCMvalue.mouthRecoveryLimit
-			if mouthtime < mouthtimeLimit
-				mouthtime = mouthtimeLimit
-			endif
-
-			if MCMValue.mouth > 0 ; we don´t want facial expression change while wearing a gag
-				float opening = (mouthtime * MCMValue.mouth / 100) ; slider setting multiplied with internal phonememodifier Value is maxed at 100
-				setPhonemeModifier(dba_player, 0, 1, opening as int)
-				setPhonemeModifier(dba_player, 0, 11, (opening * 0.7) as int) ; using factor 0.7 to prevent it looking weired... more weired as it is
-			else
-				setPhonemeModifier(dba_player, 0, 1, 0)
-				setPhonemeModifier(dba_player, 0, 11, 0)
-			endif
-		elseif status == 1 && mouthtime < 100
-			mouthtime += GTpassed * 14.29 ; mouthtime multiplied by 14.29 is approx 7 days from 0 to 100
-
-			if mouthtime > 100
-				mouthtime = 100
-			endif
-			if mouthtime > mouthtimeMax
-				mouthtimeMax = mouthtime
-			endif
+		if MCMValue.mouth > 0 ; we don´t want facial expression change while wearing a gag
+			float opening = (mouthtime * MCMValue.mouth / 100) ; slider setting multiplied with internal phonememodifier Value is maxed at 100
+			setPhonemeModifier(dba_player, 0, 1, opening as int)
+			setPhonemeModifier(dba_player, 0, 11, (opening * 0.7) as int) ; using factor 0.7 to prevent it looking weired... more weired as it is
 		endif
-	else
-		setPhonemeModifier(dba_player, 0, 1, 0)
-		setPhonemeModifier(dba_player, 0, 11, 0)
+	elseif status == 1 && mouthtime < 100
+		mouthtime += GTpassed * 14.29 ; mouthtime multiplied by 14.29 is approx 7 days from 0 to 100
+
+		if mouthtime > 100
+			mouthtime = 100
+		endif
+		if mouthtime > mouthtimeMax
+			mouthtimeMax = mouthtime
+		endif
+	endif
+
+	if MCMValue.debuglogenabled
+		Debug.trace("DBA: Mouth Opening set. Mouthtime= " + mouthtime)
 	endif
 endFunction
 
 function checkNeck()
-	if MCMvalue.neckEnabled
-		int status = 0
-		if dba_player.WornHasKeyword(dditem[6])
-			status = 1 ; adjust length
+	int status = 0
+	if dba_player.WornHasKeyword(dditem[6])
+		status = 1 ; adjust length
+	endif
+
+	if status == 0 && MCMValue.neckrecover > 0 && necktime > 0
+		necktime -= GTpassed * 3.57 * MCMValue.neckrecover
+		float necktimeLimit = necktimeMax * MCMvalue.mouthRecoveryLimit
+		if necktime < necktimeLimit
+			necktime = necktimeLimit
 		endif
+	elseif status == 1 && necktime < 100
+		necktime += GTpassed * 3.57 ; Necktime multiplied by 3.57 is approx 28 days from 0 to 100
 
-		if status == 0 && MCMValue.neckrecover > 0 && necktime > 0
-			necktime -= GTpassed * 3.57 * MCMValue.neckrecover
-			float necktimeLimit = necktimeMax * MCMvalue.mouthRecoveryLimit
-			if necktime < necktimeLimit
-				necktime = necktimeLimit
-			endif
-		elseif status == 1 && necktime < 100
-			necktime += GTpassed * 3.57 ; Necktime multiplied by 3.57 is approx 28 days from 0 to 100
-
-			if necktime > 100
-				necktime = 100
-			endif
-			if necktime > necktimeMax
-				necktimeMax = necktime
-			endif
+		if necktime > 100
+			necktime = 100
+		endif
+		if necktime > necktimeMax
+			necktimeMax = necktime
 		endif
 	endif
 endFunction
 
 function checkArm()
-	if MCMvalue.armEnabled
-		int status = 0
-		if dba_player.WornHasKeyword(dditem[4]) || dba_player.WornHasKeyword(dditem[14]) || dba_player.WornHasKeyword(dditem[15]) || dba_player.WornHasKeyword(dditem[17]) || dba_player.WornHasKeyword(dditem[19])
-			status = 1 ; adjust muscle / arm thickness
+	int status = 0
+	if dba_player.WornHasKeyword(dditem[4]) || dba_player.WornHasKeyword(dditem[14]) || dba_player.WornHasKeyword(dditem[15]) || dba_player.WornHasKeyword(dditem[17]) || dba_player.WornHasKeyword(dditem[19])
+		status = 1 ; adjust muscle / arm thickness
+	endif
+
+	if status == 0 && MCMValue.armrecover > 0 && armtime > 0
+		armtime -= GTpassed * 4.76 * MCMValue.armrecover
+
+		float armtimeLimit = armtimeMax * MCMvalue.armRecoveryLimit
+		if armtime < armtimeLimit
+			armtime = armtimeLimit
+		endif	
+	elseif status == 1 && armtime < 100
+		armtime += GTpassed * 4.76 ; armtime multiplied by 4.76 is approx 21 days from 0 to 100
+
+		if armtime > 100
+			armtime = 100
 		endif
-
-		if status == 0 && MCMValue.armrecover > 0 && armtime > 0
-			armtime -= GTpassed * 4.76 * MCMValue.armrecover
-
-			float armtimeLimit = armtimeMax * MCMvalue.armRecoveryLimit
-			if armtime < armtimeLimit
-				armtime = armtimeLimit
-			endif	
-		elseif status == 1 && armtime < 100
-			armtime += GTpassed * 4.76 ; armtime multiplied by 4.76 is approx 21 days from 0 to 100
-
-			if armtime > 100
-				armtime = 100
-			endif
-			if armtime > armtimeMax
-				armtimeMax = armtime
-			endif
+		if armtime > armtimeMax
+			armtimeMax = armtime
 		endif
 	endif
 endFunction
 
 function checkHand()
-	if MCMvalue.handEnabled
-		int status = 0
-		if dba_player.WornHasKeyword(dditem[9])
-			status = 1 ; adjust ability
+	int status = 0
+	if dba_player.WornHasKeyword(dditem[9])
+		status = 1 ; adjust ability
+	endif
+
+	if status == 0 && MCMValue.handrecover > 0 && handtime > 0
+		handtime -= GTpassed * 4.76 * MCMValue.handrecover
+
+		float handtimeLimit = handtimeMax * MCMvalue.handRecoveryLimit
+		if handtime < handtimeLimit
+			handtime = handtimeLimit
 		endif
+	elseif status == 1 && handtime < 100
+		handtime += GTpassed * 4.76 ; handtime multiplied by 4.76 is approx 21 days from 0 to 100
 
-		if status == 0 && MCMValue.handrecover > 0 && handtime > 0
-			handtime -= GTpassed * 4.76 * MCMValue.handrecover
-
-			float handtimeLimit = handtimeMax * MCMvalue.handRecoveryLimit
-			if handtime < handtimeLimit
-				handtime = handtimeLimit
-			endif
-		elseif status == 1 && handtime < 100
-			handtime += GTpassed * 4.76 ; handtime multiplied by 4.76 is approx 21 days from 0 to 100
-
-			if handtime > 100
-				handtime = 100
-			endif
-			if handtime > handtimeMax
-				handtimeMax = handtime
-			endif
+		if handtime > 100
+			handtime = 100
+		endif
+		if handtime > handtimeMax
+			handtimeMax = handtime
 		endif
 	endif
 endFunction
 
 function checkBreast()
-	if MCMvalue.breastEnabled
-		int status = 0
-		if dba_player.WornHasKeyword(dditem[2]) || dba_player.WornHasKeyword(dditem[12])
-			status = 1 ; growing boobs
-		elseif dba_player.WornHasKeyword(dditem[8])
-			status = 2 ; fast growing boobs
+	int status = 0
+	if dba_player.WornHasKeyword(dditem[2]) || dba_player.WornHasKeyword(dditem[12])
+		status = 1 ; growing boobs
+	elseif dba_player.WornHasKeyword(dditem[8])
+		status = 2 ; fast growing boobs
+	endif
+
+	if status == 0 && MCMValue.breastrecover > 0 && breasttime > 0
+		breasttime -= GTpassed * 3.57 * MCMValue.breastrecover
+
+		float breasttimeLimit = breasttimeMax * MCMvalue.breastRecoveryLimit
+		if breasttime < breasttimeLimit
+			breasttime = breasttimeLimit
+		endif
+	else
+		if status == 1 && breasttime < 100
+			breasttime += GTpassed * 3.57 ; breasttime multiplied by 3.57 is approx 28 days from 0 to 100
+		elseif status == 2 && breasttime < 100
+			breasttime += GTpassed * 1.5 * 3.57
 		endif
 
-		if status == 0 && MCMValue.breastrecover > 0 && breasttime > 0
-			breasttime -= GTpassed * 3.57 * MCMValue.breastrecover
-
-			float breasttimeLimit = breasttimeMax * MCMvalue.breastRecoveryLimit
-			if breasttime < breasttimeLimit
-				breasttime = breasttimeLimit
-			endif
-		else
-			if status == 1 && breasttime < 100
-				breasttime += GTpassed * 3.57 ; breasttime multiplied by 3.57 is approx 28 days from 0 to 100
-			elseif status == 2 && breasttime < 100
-				breasttime += GTpassed * 1.5 * 3.57
-			endif
-
-			if breasttime > 100
-				breasttime = 100
-			endif
-			if breasttime > breasttimeMax
-				breasttimeMax = breasttime
-			endif
+		if breasttime > 100
+			breasttime = 100
+		endif
+		if breasttime > breasttimeMax
+			breasttimeMax = breasttime
 		endif
 	endif
 endFunction
 
 function checkWaist()
-	if MCMvalue.waistEnabled
-		int status = 0
-		if dba_player.WornHasKeyword(dditem[1]) && (dba_player.WornHasKeyword(dditem[18]) || dba_player.WornHasKeyword(dditem[20]) || dba_player.WornHasKeyword(dditem[21]))
-			status = 3 ; fast shrinking waist
-		elseif dba_player.WornHasKeyword(dditem[1])
-			status = 2 ; shrinking waist
-		elseif dba_player.WornHasKeyword(dditem[18]) || dba_player.WornHasKeyword(dditem[20]) || dba_player.WornHasKeyword(dditem[21])
-			status = 1 ; slow shrinking waist
+	int status = 0
+	if dba_player.WornHasKeyword(dditem[1]) && (dba_player.WornHasKeyword(dditem[18]) || dba_player.WornHasKeyword(dditem[20]) || dba_player.WornHasKeyword(dditem[21]))
+		status = 3 ; fast shrinking waist
+	elseif dba_player.WornHasKeyword(dditem[1])
+		status = 2 ; shrinking waist
+	elseif dba_player.WornHasKeyword(dditem[18]) || dba_player.WornHasKeyword(dditem[20]) || dba_player.WornHasKeyword(dditem[21])
+		status = 1 ; slow shrinking waist
+	endif
+
+	if status == 0 && MCMValue.waistrecover > 0 && waisttime > 0
+		waisttime -= GTpassed * 3.57 * MCMValue.waistrecover
+
+		float waisttimeLimit = waisttimeMax * MCMvalue.waistRecoveryLimit
+		if waisttime < waisttimeLimit
+			waisttime = waisttimeLimit
+		endif
+	else
+		if status == 1 && waisttime < 66 ; only with corset it is possible to shrink the waist completly
+			waisttime += GTpassed * 0.75 * 3.57
+		elseif status == 2 && waisttime < 100
+			waisttime += GTpassed * 3.57 ; waisttime multiplied by 3.57 is approx 28 days from 0 to 100
+		elseif status == 3 && waisttime < 100
+			waisttime += GTpassed * 1.5 * 3.57
 		endif
 
-		if status == 0 && MCMValue.waistrecover > 0 && waisttime > 0
-			waisttime -= GTpassed * 3.57 * MCMValue.waistrecover
-
-			float waisttimeLimit = waisttimeMax * MCMvalue.waistRecoveryLimit
-			if waisttime < waisttimeLimit
-				waisttime = waisttimeLimit
-			endif
-		else
-			if status == 1 && waisttime < 66 ; only with corset it is possible to shrink the waist completly
-				waisttime += GTpassed * 0.75 * 3.57
-			elseif status == 2 && waisttime < 100
-				waisttime += GTpassed * 3.57 ; waisttime multiplied by 3.57 is approx 28 days from 0 to 100
-			elseif status == 3 && waisttime < 100
-				waisttime += GTpassed * 1.5 * 3.57
-			endif
-
-			if waisttime > 100
-				waisttime = 100
-			endif
-			if waisttime > waisttimeMax
-				waisttimeMax = waisttime
-			endif
+		if waisttime > 100
+			waisttime = 100
+		endif
+		if waisttime > waisttimeMax
+			waisttimeMax = waisttime
 		endif
 	endif
 endFunction
 
 function checkButt()
-	if MCMvalue.buttEnabled
-		int status = 0
-		if dba_player.WornHasKeyword(dditem[2]) || dba_player.WornHasKeyword(dditem[7])
-			status = 1 ; growing butt
+	int status = 0
+	if dba_player.WornHasKeyword(dditem[2]) || dba_player.WornHasKeyword(dditem[7])
+		status = 1 ; growing butt
+	endif
+
+	if status == 0 && MCMValue.buttrecover > 0 && butttime > 0
+		butttime -= GTpassed * 4.76	* MCMValue.buttrecover ; butttime multiplied by 4.76 is approx 21 days from 0 to 100
+
+		float butttimeLimit = butttimeMax * MCMvalue.buttRecoveryLimit
+		if butttime < butttimeLimit
+			butttime = butttimeLimit
 		endif
-
-		if status == 0 && MCMValue.buttrecover > 0 && butttime > 0
-			butttime -= GTpassed * 4.76	* MCMValue.buttrecover ; butttime multiplied by 4.76 is approx 21 days from 0 to 100
-
-			float butttimeLimit = butttimeMax * MCMvalue.buttRecoveryLimit
-			if butttime < butttimeLimit
-				butttime = butttimeLimit
-			endif
-		elseif status == 1 && butttime < 100
-			butttime += GTpassed * 4.76
-			
-			if butttime > 100
-				butttime = 100
-			endif
-			if butttime > butttimeMax
-				butttimeMax = butttime
-			endif
+	elseif status == 1 && butttime < 100
+		butttime += GTpassed * 4.76
+		
+		if butttime > 100
+			butttime = 100
+		endif
+		if butttime > butttimeMax
+			butttimeMax = butttime
 		endif
 	endif
 endFunction
 
 function checkAnus()
-	if MCMvalue.anusEnabled
-		int status = 0
-		if dba_player.WornHasKeyword(dditem[11])
-			status = 1 ; anus widening
+	int status = 0
+	if dba_player.WornHasKeyword(dditem[11])
+		status = 1 ; anus widening
+	endif
+
+	if status == 0 && MCMValue.anusrecover > 0 && anustime > 0
+		anustime -= GTpassed * 4.76 * MCMValue.anusrecover
+
+		float anustimeLimit = anustimeMax * MCMvalue.anusRecoveryLimit
+		if anustime < anustimeLimit
+			anustime = anustimeLimit
 		endif
+	elseif status == 1 && anustime < 100
+		anustime += GTpassed * 4.76 ; anustime multiplied by 4.76 is approx 21 days from 0 to 100
 
-		if status == 0 && MCMValue.anusrecover > 0 && anustime > 0
-			anustime -= GTpassed * 4.76 * MCMValue.anusrecover
-
-			float anustimeLimit = anustimeMax * MCMvalue.anusRecoveryLimit
-			if anustime < anustimeLimit
-				anustime = anustimeLimit
-			endif
-		elseif status == 1 && anustime < 100
-			anustime += GTpassed * 4.76 ; anustime multiplied by 4.76 is approx 21 days from 0 to 100
-
-			if anustime > 100
-				anustime = 100
-			endif
-			if anustime > anustimeMax
-				anustimeMax = anustime
-			endif
+		if anustime > 100
+			anustime = 100
+		endif
+		if anustime > anustimeMax
+			anustimeMax = anustime
 		endif
 	endif
 endFunction
 
 function checkVagina()
-	if MCMvalue.vaginaEnabled
-		int status = 0
-		if dba_player.WornHasKeyword(dditem[10]) && dba_player.WornHasKeyword(dditem[13])
-			status = 1 ; vagina widening
+	int status = 0
+	if dba_player.WornHasKeyword(dditem[10]) && dba_player.WornHasKeyword(dditem[13])
+		status = 1 ; vagina widening
+	endif
+
+	if status == 0 && MCMValue.vaginarecover > 0 && vaginatime > 0
+		vaginatime -= GTpassed * 7.14 * MCMValue.vaginarecover ; vaginatime multiplied by 7.14 is approx 14 days from 0 to 100
+
+		float vaginatimeLimit = vaginatimeMax * MCMvalue.vaginaRecoveryLimit
+		if vaginatime < vaginatimeLimit
+			vaginatime = vaginatimeLimit
 		endif
+	elseif status == 1 && vaginatime < 100
+		vaginatime += GTpassed * 7.14
 
-		if status == 0 && MCMValue.vaginarecover > 0 && vaginatime > 0
-			vaginatime -= GTpassed * 7.14 * MCMValue.vaginarecover ; vaginatime multiplied by 7.14 is approx 14 days from 0 to 100
-
-			float vaginatimeLimit = vaginatimeMax * MCMvalue.vaginaRecoveryLimit
-			if vaginatime < vaginatimeLimit
-				vaginatime = vaginatimeLimit
-			endif
-		elseif status == 1 && vaginatime < 100
-			vaginatime += GTpassed * 7.14
-
-			if vaginatime > 100
-				vaginatime = 100
-			endif
-			if vaginatime > vaginatimeMax
-				vaginatimeMax = vaginatime
-			endif
+		if vaginatime > 100
+			vaginatime = 100
+		endif
+		if vaginatime > vaginatimeMax
+			vaginatimeMax = vaginatime
 		endif
 	endif
 endFunction
 
 function checkLeg()
-	if MCMvalue.legEnabled
-		int status = 0
-		if dba_player.WornHasKeyword(dditem[3]) || dba_player.WornHasKeyword(dditem[0]) || (dba_player.WornHasKeyword(dditem[20]) && !dba_player.WornHasKeyword(dditem[21]))
-			status = 1	; leg muscle loss
+	int status = 0
+	if dba_player.WornHasKeyword(dditem[3]) || dba_player.WornHasKeyword(dditem[0]) || (dba_player.WornHasKeyword(dditem[20]) && !dba_player.WornHasKeyword(dditem[21]))
+		status = 1	; leg muscle loss
+	endif
+
+	if status == 0 && MCMValue.legrecover > 0 && legtime > 0
+		legtime -= GTpassed * 4.76 * MCMValue.legrecover ; legtime multiplied by 4.76 is approx 21 days from 0 to 100
+
+		float legtimeLimit = legtimeMax * MCMvalue.legRecoveryLimit
+		if legtime < legtimeLimit
+			legtime = legtimeLimit
 		endif
+	elseif status == 1 && legtime < 100
+		legtime += GTpassed * 4.76
 
-		if status == 0 && MCMValue.legrecover > 0 && legtime > 0
-			legtime -= GTpassed * 4.76 * MCMValue.legrecover ; legtime multiplied by 4.76 is approx 21 days from 0 to 100
-
-			float legtimeLimit = legtimeMax * MCMvalue.legRecoveryLimit
-			if legtime < legtimeLimit
-				legtime = legtimeLimit
-			endif
-		elseif status == 1 && legtime < 100
-			legtime += GTpassed * 4.76
-
-			if legtime > 100
-				legtime = 100
-			endif
-			if legtime > legtimeMax
-				legtimeMax > legtime
-			endif
+		if legtime > 100
+			legtime = 100
+		endif
+		if legtime > legtimeMax
+			legtimeMax > legtime
 		endif
 	endif
 endFunction
 
 function checkFoot()
-	if MCMvalue.footEnabled
-		bool isFemale = dba_player.GetLeveledActorBase().GetSex()
-		int status = 0
+	bool isFemale = dba_player.GetLeveledActorBase().GetSex()
+	int status = 0
 
-		if dba_player.WornHasKeyword(dditem[0])
-			status = 1 ; Altered feet ; if I find a free desgin bared bondage feet UUNP
-		elseif NiOverride.HasNodeTransformPosition(dba_player, False, isFemale, "NPC", "internal") && (dba_player.getWornForm(Slot37) != AlteredFeet || dba_player.getWornForm(Slot37) != CinderellaFeetItem)
-			status = 2 ; Altered feet
-		endif
+	if dba_player.WornHasKeyword(dditem[0])
+		status = 1 ; Altered feet ; if I find a free desgin bared bondage feet UUNP
+	elseif NiOverride.HasNodeTransformPosition(dba_player, False, isFemale, "NPC", "internal") && (dba_player.getWornForm(Slot37) != AlteredFeet || dba_player.getWornForm(Slot37) != CinderellaFeetItem)
+		status = 2 ; Altered feet
+	endif
 
-		if status == 0
-			if MCMValue.footrecover > 0 && foottime > 0
-				foottime -= GTpassed * 3.57 * MCMValue.footrecover ; foottime multiplied by 3.57 is approx 28 days from 0 to 100
+	if status == 0
+		if MCMValue.footrecover > 0 && foottime > 0
+			foottime -= GTpassed * 3.57 * MCMValue.footrecover ; foottime multiplied by 3.57 is approx 28 days from 0 to 100
 
-				float foottimeLimit = foottimeMax * MCMvalue.footRecoveryLimit
-				if foottime < foottimeLimit
-					foottime = foottimeLimit
-				endif
-			endif
-
-			if foottime >= 75
-				if isFemale && !MCMvalue.yps && dba_player.getWornForm(Slot37) != AlteredFeet
-					dba_player.unequipItemSlot(37)
-					Debug.Notification("You can only walk on your tippy toes or high heels with your altered feet.")
-					dba_player.equipitem(AlteredFeet, false, true)
-				endif
-			endif
-		elseif (status == 1 && foottime < 100) || (status == 2 && foottime < 80) ; High Heels will damage your Achilles
-			foottime += GTpassed * 3.57 ; Devious boots will lead to extrem shortend Achilles
-
-			if foottime > 100
-				foottime = 100
-			endif
-			if foottime > foottimeMax
-				foottimeMax = foottime
+			float foottimeLimit = foottimeMax * MCMvalue.footRecoveryLimit
+			if foottime < foottimeLimit
+				foottime = foottimeLimit
 			endif
 		endif
+
+		if foottime >= 75
+			if isFemale && !MCMvalue.yps && dba_player.getWornForm(Slot37) != AlteredFeet
+				dba_player.unequipItemSlot(37)
+				Debug.Notification("You can only walk on your tippy toes or high heels with your altered feet.")
+				dba_player.equipitem(AlteredFeet, false, true)
+			endif
+		endif
+	elseif (status == 1 && foottime < 100) || (status == 2 && foottime < 80) ; High Heels will damage your Achilles
+		foottime += GTpassed * 3.57 ; Devious boots will lead to extreme shortend Achilles
+
+		if foottime > 100
+			foottime = 100
+		endif
+		if foottime > foottimeMax
+			foottimeMax = foottime
+		endif
+	endif
+
+	if MCMValue.debuglogenabled
+		Debug.trace("DBA: Foot adjustment done. Foottime= " + foottime)
 	endif
 endFunction
 
 function checkWeight()
-	if MCMvalue.weight
-		int status = 0
-		if dba_player.WornHasKeyword(dditem[1]) || dba_player.WornHasKeyword(dditem[22])
-			status = 1
+	int status = 0
+	if dba_player.WornHasKeyword(dditem[1]) || dba_player.WornHasKeyword(dditem[22])
+		status = 1
+	endif
+
+	if status == 0 && weighttime < 100 ; status 0 assuming you will eat to replenisch lost weight. TODO: find a good solution to use food in game.
+		weighttime += GTpassed * 0.5 ; slow weight increase
+
+		if weighttime > 100.0
+			weighttime = 100.0
 		endif
+	elseif status == 1 && weighttime > 0
+		weighttime -= GTpassed * 2.0 ; multiplied by 2.0 is 50 days from 100 to 0
 
-		if status == 0 && weighttime < 100 ; status 0 assuming you will eat to replenisch lost weight. TODO: find a good solution to use food in game.
-			weighttime += GTpassed * 0.5 ; slow weight increase
-
-			if weighttime > 100.0
-				weighttime = 100.0
-			endif
-		elseif status == 1 && weighttime > 0
-			weighttime -= GTpassed * 2.0 ; multiplied by 2.0 is 50 days from 100 to 0
-
-			if weighttime < 0.0
-				weighttime = 0.0
-			endif
+		if weighttime < 0.0
+			weighttime = 0.0
 		endif
 	endif
 endFunction
@@ -686,44 +678,21 @@ function CheckWalkingStatus()
 endFunction
 
 function BodyMorph()
-;#####Eyesection#####
-	dba_player.setFactionRank(MCMValue.dba_Eye, eyetime as int)
-	if MCMValue.debuglogenabled
-		Debug.trace("DBA: Eye Expression set.")
-	endif
-;#####Mouthsection#####
-	dba_player.setFactionRank(MCMValue.dba_mouth, mouthtime as int)
-	if MCMValue.debuglogenabled
-		Debug.trace("DBA: Mouth Opening set.")
-	endif
-	
-;#####Necksection#####
-	dba_player.setFactionRank(MCMvalue.dba_Neck, necktime as int)
-	if MCMValue.debuglogenabled
-		Debug.trace("DBA: Neck transformation set. Necktime= " + necktime)
-	endif
-
 ;#####Armsection#####
 	if MCMvalue.armEnabled && MCMvalue.arm > 0
 		float arm = (armtime * MCMValue.arm / 10000) ; slider muliplied by factionrank is maxed at 10000
 		SetMorphValue(dba_Player, arm, "Arms")
 		setMorphValue(dba_Player, arm * 0.75, "ShoulderSmooth")
 		setMorphValue(dba_player, -arm * 0.75, "ShoulderWidth")
-	else
-		SetMorphValue(dba_Player, 0.0, "Arms")
-		setMorphValue(dba_Player, 0.0, "ShoulderSmooth")
-		setMorphValue(dba_player, 0.0, "ShoulderWidth")
-	endif
 
-	dba_player.setFactionRank(MCMvalue.dba_Arm, armtime as int)
-	if MCMValue.debuglogenabled
-		Debug.trace("DBA: Arm morph set. Armtime= " + armtime)
+		if MCMValue.debuglogenabled
+			Debug.trace("DBA: Arm morph set. Armtime= " + armtime)
+		endif
 	endif
 	
 ;#####Handsection#####
-	dba_player.setFactionRank(MCMvalue.dba_Hand, handtime as int)
 	if MCMValue.debuglogenabled
-		Debug.trace("DBA: Hand adjustment done.")
+		Debug.trace("DBA: Hand adjustment does not exist, yet...")
 	endif
 
 ;#####Breastsection#####
@@ -733,27 +702,27 @@ function BodyMorph()
 		setMorphValue(dba_player, -breast, "BreastsSmall")
 		setMorphValue(dba_player, breast * 0.25, "BreastPerkiness")
 		setMorphValue(dba_player, breast * 0.5, "NippleLength")
-	else
-		setMorphValue(dba_Player, 0.0, "BreastsFantasy")
-		setMorphValue(dba_player, 0.0, "BreastsSmall")
-		setMorphValue(dba_player, 0.0, "BreastPerkiness")
-		setMorphValue(dba_player, 0.0, "NippleLength")
+
+		if MCMValue.debuglogenabled
+			Debug.trace("DBA: Breast morph set. Breasttime= " + breasttime)
+		endif
 	endif
 
 	if MCMValue.mme
 		float MilkCnt = MME_Storage.getMilkCurrent(dba_player)
 		int BreastRows = MME_Storage.getBreastRows(dba_player)
 		float MMEbreast = MilkCnt / BreastRows / 10
+
 		if MMEbreast > MCMvalue.mmebreastmax
 			MMEbreast = MCMValue.mmebreastmax
 		endif
+
 		setMorphValue(dba_Player, MMEbreast * 0.75, "BreastsSSH")
 		setMorphValue(dba_Player, MMEbreast, "DoubleMelon")
-	endif
 
-	dba_player.setFactionRank(MCMvalue.dba_Breast, breasttime as int)
-	if MCMValue.debuglogenabled
-		Debug.trace("DBA: Breast morph set. Breasttime= " + breasttime)
+		if MCMValue.debuglogenabled
+			Debug.trace("DBA: MME Breast morph set. MMEbreast= " + MMEbreast)
+		endif
 	endif
 
 ;#####Waistsection#####
@@ -764,17 +733,10 @@ function BodyMorph()
 		setMorphValue(dba_Player, -waist * 0.75, "ChubbyWaist")
 		setMorphValue(dba_Player, -waist, "Back")
 		setMorphValue(dba_Player, -waist / 2, "BigBelly")
-	else
-		setMorphValue(dba_player, 0.0, "Waist")
-		setMorphValue(dba_Player, 0.0, "WideWaistLine")
-		setMorphValue(dba_Player, 0.0, "ChubbyWaist")
-		setMorphValue(dba_Player, 0.0, "Back")
-		setMorphValue(dba_Player, 0.0, "BigBelly")
-	endif
 
-	dba_player.setFactionRank(MCMvalue.dba_Waist, waisttime as int)
-	if MCMValue.debuglogenabled
-		Debug.trace("DBA: Waist morph set. Waisttime= " + waisttime)
+		if MCMValue.debuglogenabled
+			Debug.trace("DBA: Waist morph set. Waisttime= " + waisttime)
+		endif
 	endif
 
 ;#####Buttsection#####
@@ -782,66 +744,42 @@ function BodyMorph()
 		float butt = (butttime * MCMValue.butt / 10000) ; slider muliplied by factionrank is maxed at 10000
 		setMorphValue(dba_player, butt, "BigButt")
 		setMorphValue(dba_Player, butt, "AppleCheeks")
-	else
-		setMorphValue(dba_player, 0.0, "BigButt")
-		setMorphValue(dba_Player, 0.0, "AppleCheeks")
-	endif
 
-	dba_player.setFactionRank(MCMvalue.dba_Butt, butttime as int)
-	if MCMValue.debuglogenabled
-		Debug.trace("DBA: Butt morph set. Butttime= " + butttime)
+		if MCMValue.debuglogenabled
+			Debug.trace("DBA: Butt morph set. Butttime= " + butttime)
+		endif
 	endif
 
 ;#####Anussection#####
 	if MCMvalue.anusEnabled && MCMvalue.anus > 0
 		float anus = (anustime * MCMValue.anus / 10000) ; slider muliplied by factionrank is maxed at 10000
 		setMorphValue(dba_player, anus, "AnusSpread")
-	else
-		setMorphValue(dba_player, 0.0, "AnusSpread")
+
+		if MCMValue.debuglogenabled
+			Debug.trace("DBA: Anus adjustment done.")
+		endif
 	endif
 
-	dba_player.setFactionRank(MCMvalue.dba_Anus, anustime as int)
-	if MCMValue.debuglogenabled
-		Debug.trace("DBA: Anus adjustment done.")
-	endif
-
-;#####Vaginasection#####
-	dba_player.setFactionRank(MCMvalue.dba_Vagina, vaginatime as int)
-	if MCMValue.debuglogenabled
-		Debug.trace("DBA: Vagina transformation set. Vaginatime= " + vaginatime)
-	endif
-	
 ;#####Legsection#####
 	if MCMvalue.legEnabled && MCMvalue.leg > 0
 		float leg = (legtime * MCMValue.leg / 10000) ; slider muliplied by factionrank is maxed at 10000
 		setMorphValue(dba_Player, leg, "KneeHeight")
 		setMorphValue(dba_Player, leg, "CalfSize")
-	else
-		setMorphValue(dba_Player, 0.0, "KneeHeight")
-		setMorphValue(dba_Player, 0.0, "CalfSize")
-	endif
 
-	dba_player.setFactionRank(MCMvalue.dba_Leg, legtime as int)
-	if MCMValue.debuglogenabled
-		Debug.trace("DBA: Leg morph set. Legtime= " + legtime)
-	endif
-
-;#####Footsection#####
-	dba_player.setFactionRank(MCMvalue.dba_Foot, foottime as int)
-	if MCMValue.debuglogenabled
-		Debug.trace("DBA: Foot adjustment done.")
+		if MCMValue.debuglogenabled
+			Debug.trace("DBA: Leg morph set. Legtime= " + legtime)
+		endif
 	endif
 
 ;#####Weightsection#####
 	if MCMValue.weight
-		if (!dba_player.isOnMount() || !dba_player.isSwimming()) ;&& Morphupdate < GTcurrent
+		if (!dba_player.isOnMount() || !dba_player.isSwimming())
 			float neckdelta = (weightcalc / 100) - (weighttime / 100)
 			dba_player.getActorBase().setWeight(weighttime)
 			dba_player.updateWeight(neckdelta)		
 			dba_player.QueueNiNodeUpdate()
 			weightcalc = weighttime
-			
-			dba_player.setFactionRank(MCMvalue.dba_Weight, weighttime as int)
+
 			if MCMValue.debuglogenabled
 				Debug.trace("DBA: Weight Alteration done. Weightvariable= " + weighttime + " ; weightcalc= " + weightcalc)
 			endif
@@ -852,18 +790,29 @@ endFunction
 function BodyTransform()
 	int r = utility.RandomInt(0, 44)
 	
-	if (MCMvalue.neckEnabled && MCMvalue.neck > 0)
+	if MCMvalue.neckEnabled && MCMvalue.neck > 0
 		float head = 1 / (1 + (necktime * MCMValue.neck / 10000)) ; slider muliplied by factionrank is maxed at 10000
 		float neck = 1 + (necktime * MCMValue.neck / 10000) ; slider muliplied by factionrank is maxed at 10000
 
 		AddNodeTransformScale(dba_player, false, true, "NPC Head [Head]", head)
 		AddNodeTransformScale(dba_player, false, true, "NPC Neck [Neck]", neck)
-	else
-		AddNodeTransformScale(dba_player, false, true, "NPC Head [Head]", 1.0)
-		AddNodeTransformScale(dba_player, false, true, "NPC Neck [Neck]", 1.0)
+
+		if MCMValue.debuglogenabled
+			Debug.trace("DBA: Neck transformation set. Necktime= " + necktime)
+		endif
 	endif
 	
-	if (MCMvalue.waistEnabled && MCMValue.waist > 0 && MCMValue.waistalt)
+	if MCMvalue.vaginaEnabled && MCMvalue.vagina > 0
+		float vagina = 1 / (1 + (vaginatime * MCMValue.vagina / 10000)) ; slider muliplied by factionrank is maxed at 10000
+		AddNodeTransformScale(dba_player, false, true, "NPC L Pussy02", vagina)
+		AddNodeTransformScale(dba_player, false, true, "NPC R Pussy02", vagina)
+
+		if MCMValue.debuglogenabled
+			Debug.trace("DBA: Vagina transformation set. Vaginatime= " + vaginatime)
+		endif
+	endif
+
+	if MCMValue.waistalt && MCMvalue.waistEnabled && MCMValue.waist > 0
 		float spn1 = 1 / (1 + (waisttime * MCMValue.waist / 10000)) ; slider muliplied by factionrank is maxed at 10000
 		float spn2 = 1 + (waisttime * MCMValue.waist / 10000) ; slider muliplied by factionrank is maxed at 10000
 		float spn3 = waisttime * MCMValue.waist / 10000
@@ -873,19 +822,11 @@ function BodyTransform()
 
 		setMorphValue(dba_player, spn3 / 2 , "Breasts")
 		setMorphValue(dba_player, spn3 , "BreastHeight")
+		
 		if MCMValue.debuglogenabled
 			Debug.trace("DBA: Waistalternative transformation set.")
 		endif
 	endif
-	
-	if MCMvalue.vaginaEnabled && MCMvalue.vagina > 0	
-		float vagina = 1 / (1 + (vaginatime * MCMValue.vagina / 10000)) ; slider muliplied by factionrank is maxed at 10000
-		AddNodeTransformScale(dba_player, false, true, "NPC L Pussy02", vagina)
-		AddNodeTransformScale(dba_player, false, true, "NPC R Pussy02", vagina)
-	else
-		AddNodeTransformScale(dba_player, false, true, "NPC L Pussy02", 1.0)
-		AddNodeTransformScale(dba_player, false, true, "NPC R Pussy02", 1.0)
-	endif	
 endFunction
 
 function AddNodeTransformScale(Actor akActor, bool firstPerson, bool isFemale, string nodeName, float scale)
@@ -920,6 +861,159 @@ function setMorphValue(Actor akActor, float value, string morphName)
 			NiOverride.ClearBodyMorph(akActor, morphName, "DBA") ; clear morph by toggle or disable mod implementation not done yet
 		endif
 	endif
+endFunction
+
+function resetEyesAlteration(bool checkQueue = true)
+	if checkQueue && !MCMValue.eyesResetQueued
+		return
+	endif
+
+	dba_player.setExpressionModifier(0, 0.0)
+	dba_player.setExpressionModifier(1, 0.0)
+	dba_player.SetExpressionModifier(2, 0.0)
+	dba_player.SetExpressionModifier(3, 0.0)
+	dba_player.SetExpressionModifier(6, 0.0)
+	dba_player.SetExpressionModifier(7, 0.0)
+	dba_player.SetExpressionModifier(12, 0.0)
+	dba_player.SetExpressionModifier(13, 0.0)
+endfunction
+
+function resetMouthAlteration(bool checkQueue = true)
+	if checkQueue && !MCMValue.mouthResetQueued
+		return
+	endif
+	
+	SetPhonemeModifier(dba_player, 0, 1, 0)
+	SetPhonemeModifier(dba_player, 0, 11, 0)
+endfunction
+
+function resetNeckAlteration(bool checkQueue = true)
+	if checkQueue && !MCMValue.neckResetQueued
+		return
+	endif
+	
+	AddNodeTransformScale(dba_player,false, true, "NPC Head [Head]", 1.0)
+	AddNodeTransformScale(dba_player,false, true, "NPC Neck [Neck]", 1.0)
+endfunction
+
+function resetArmsAlteration(bool checkQueue = true)
+	if checkQueue && !MCMValue.armsResetQueued
+		return
+	endif
+
+	SetMorphValue(dba_Player, 0.0, "Arms")
+	setMorphValue(dba_Player, 0.0, "ShoulderSmooth")
+	setMorphValue(dba_player, 0.0, "ShoulderWidth")
+endfunction
+
+function resetHandsAlteration(bool checkQueue = true)
+;	if checkQueue && !MCMValue.handsResetQueued
+;		return
+;	endif
+endfunction
+
+function resetBreastsAlteration(bool checkQueue = true)
+	if checkQueue && !MCMValue.breastsResetQueued
+		return
+	endif
+
+	setMorphValue(dba_Player, 0.0, "BreastsFantasy")
+	setMorphValue(dba_player, 0.0, "BreastsSmall")
+	setMorphValue(dba_player, 0.0, "BreastPerkiness")
+	setMorphValue(dba_player, 0.0, "NippleLength")
+
+	setMorphValue(dba_Player, 0.0, "BreastsSSH")
+	setMorphValue(dba_Player, 0.0, "DoubleMelon")
+endfunction
+
+function resetWaistAlteration(bool checkQueue = true)
+	if checkQueue && !MCMValue.waistResetQueued
+		return
+	endif
+
+	setMorphValue(dba_player, 0.0, "Waist")
+	setMorphValue(dba_Player, 0.0, "WideWaistLine")
+	setMorphValue(dba_Player, 0.0, "ChubbyWaist")
+	setMorphValue(dba_Player, 0.0, "Back")
+	setMorphValue(dba_Player, 0.0, "BigBelly")
+
+	AddNodeTransformScale(dba_player, false, true, "NPC Spine1 [Spn1]", 1.0)
+	AddNodeTransformScale(dba_player, false, true, "NPC Spine2 [Spn2]", 1.0)
+
+	setMorphValue(dba_player, 0.0, "Breasts")
+	setMorphValue(dba_player, 0.0, "BreastHeight")
+endfunction
+
+function resetButtAlteration(bool checkQueue = true)
+	if checkQueue && !MCMValue.buttResetQueued
+		return
+	endif
+
+	setMorphValue(dba_player, 0.0, "BigButt")
+	setMorphValue(dba_Player, 0.0, "AppleCheeks")
+endfunction
+
+function resetAnusAlteration(bool checkQueue = true)
+	if checkQueue && !MCMValue.anusResetQueued
+		return
+	endif
+
+	setMorphValue(dba_player, 0.0, "AnusSpread")
+endfunction
+
+function resetVaginaAlteration(bool checkQueue = true)
+	if checkQueue && !MCMValue.vaginaResetQueued
+		return
+	endif
+
+	AddNodeTransformScale(dba_player, false, true, "NPC L Pussy02", 1.0)
+	AddNodeTransformScale(dba_player, false, true, "NPC R Pussy02", 1.0)
+endfunction
+
+function resetLegsAlteration(bool checkQueue = true)
+	if checkQueue && !MCMValue.legsResetQueued
+		return
+	endif
+
+	setMorphValue(dba_Player, 0.0, "KneeHeight")
+	setMorphValue(dba_Player, 0.0, "CalfSize")
+endfunction
+
+function resetFeetAlteration(bool checkQueue = true)
+	if checkQueue && !MCMValue.feetResetQueued
+		return
+	endif
+
+	if dba_player.getWornForm(Slot37) == AlteredFeet
+		dba_player.unequipItemSlot(37)
+	endif
+endfunction
+
+function resetMovementSpeed(bool checkQueue = true)
+	if checkQueue && !MCMValue.movSpeedResetQueued
+		return
+	endif
+
+	dba_player.restoreAV("SpeedMult", speedmod)
+	dba_Player.damageActorValue("Carryweight", 0.02)
+	dba_Player.restoreActorValue("Carryweight", 0.02)
+endif
+
+function resetAlterations(bool checkQueue = true)
+	resetEyesAlteration(checkQueue)
+	resetMouthAlteration(checkQueue)
+	resetNeckAlteration(checkQueue)
+	resetArmsAlteration(checkQueue)
+	;resetHandsAlteration(checkQueue)
+	resetBreastsAlteration(checkQueue)
+	resetWaistAlteration(checkQueue)
+	resetButtAlteration(checkQueue)
+	resetAnusAlteration(checkQueue)
+	resetVaginaAlteration(checkQueue)
+	resetLegsAlteration(checkQueue)
+	resetLegsAlteration(checkQueue)
+	resetFeetAlteration(checkQueue)
+	resetMovementSpeed(checkQueue)
 endFunction
 
 function Bodymeter()
@@ -1077,58 +1171,4 @@ function Comment()
 	elseif weighttime >= 25
 		altstatus[12] = "Your dainty body responds to training."
 	endif
-endFunction
-
-function resetAlterations()
-	dba_player.setExpressionModifier(0, 0.0)
-	dba_player.setExpressionModifier(1, 0.0)
-	dba_player.SetExpressionModifier(2, 0.0)
-	dba_player.SetExpressionModifier(3, 0.0)
-	dba_player.SetExpressionModifier(6, 0.0)
-	dba_player.SetExpressionModifier(7, 0.0)
-	dba_player.SetExpressionModifier(12, 0.0)
-	dba_player.SetExpressionModifier(13, 0.0)
-
-	SetPhonemeModifier(dba_player, 0, 1, 0)
-	SetPhonemeModifier(dba_player, 0, 11, 0)
-
-	AddNodeTransformScale(dba_player,false, true, "NPC Head [Head]", 1.0)
-	AddNodeTransformScale(dba_player,false, true, "NPC Neck [Neck]", 1.0)
-
-	SetMorphValue(dba_Player, 0.0, "Arms")
-	setMorphValue(dba_Player, 0.0, "ShoulderSmooth")
-	setMorphValue(dba_player, 0.0, "ShoulderWidth")
-
-	setMorphValue(dba_player, 0.0, "Breasts")
-	setMorphValue(dba_Player, 0.0, "BreastsFantasy")
-	setMorphValue(dba_player, 0.0, "BreastsSmall")
-	setMorphValue(dba_player, 0.0, "BreastPerkiness")
-
-	setMorphValue(dba_player, 0.0, "BreastHeight")
-	setMorphValue(dba_player, 0.0, "NippleLength")
-	setMorphValue(dba_Player, 0.0, "BreastsSSH")
-	setMorphValue(dba_Player, 0.0, "DoubleMelon")
-	setMorphValue(dba_player, 0.0, "Waist")
-
-	AddNodeTransformScale(dba_player,false, true, "NPC Spine1 [Spn1]", 1.0)
-	AddNodeTransformScale(dba_player,false, true, "NPC Spine2 [Spn2]", 1.0)
-
-	setMorphValue(dba_Player, 0.0, "WideWaistLine")
-	setMorphValue(dba_Player, 0.0, "ChubbyWaist")
-	setMorphValue(dba_Player, 0.0, "Back")
-	setMorphValue(dba_Player, 0.0, "BigBelly")
-	setMorphValue(dba_player, 0.0, "BigButt")
-	setMorphValue(dba_Player, 0.0, "AppleCheeks")
-
-	setMorphValue(dba_player, 0.0, "AnusSpread")
-
-	AddNodeTransformScale(dba_player,false, true, "NPC L Pussy02", 1.0)
-	AddNodeTransformScale(dba_player,false, true, "NPC R Pussy02", 1.0)
-
-	setMorphValue(dba_Player, 0.0, "KneeHeight")
-	setMorphValue(dba_Player, 0.0, "CalfSize")
-
-	dba_player.restoreAV("SpeedMult", speedmod)
-	dba_Player.damageActorValue("Carryweight", 0.02)
-	dba_Player.restoreActorValue("Carryweight", 0.02)
 endFunction
