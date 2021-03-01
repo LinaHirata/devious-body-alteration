@@ -105,7 +105,7 @@ endFunction
 ;################################################################################################################################################################
 
 event OnUpdate()
-	float RTstart = Utility.GetCurrentRealTime()
+	;float RTstart = Utility.GetCurrentRealTime()
 	if !MCMValue.modenabled
 		if MCMValue.MCMclose
 			resetAlterations(false)
@@ -117,7 +117,7 @@ event OnUpdate()
 		if MCMValue.debuglogenabled
 			Debug.trace("DBA: Mod disabled.")
 		endif
-		Debug.Notification(Utility.GetCurrentRealTime() - RTstart)
+		;Debug.Notification(Utility.GetCurrentRealTime() - RTstart)
 		RegisterForSingleUpdate(MCMValue.UpdateTicker)
 		return
 	elseif MCMValue.MCMclose
@@ -181,18 +181,12 @@ event OnUpdate()
 	endif
 
 	if NextUpdate < GTcurrent
-		if !libs.IsAnimating(dba_player) && !isIdle()
+		if !libs.IsAnimating(dba_player) && isIdle()
 			BodyMorph()
 			NiOverride.UpdateModelWeight(dba_player)
-			if MCMValue.debuglogenabled
-				Debug.trace("DBA: Morphupdate done.")
-			endif
 
 			if dba_player.GetAnimationVariableBool("IsFirstPerson")
 				BodyTransform()
-				if MCMValue.debuglogenabled
-					Debug.trace("DBA: Transformupdate done.")
-				endif
 			endif
 			
 			if (MCMValue.comment)
@@ -206,7 +200,7 @@ event OnUpdate()
 		Debug.trace("DBA: GTcurrent= " + GTcurrent + " ; GTlastupdate= " + GTlastupdate + " ; NextUpdate= " + NextUpdate + " ; IdleStatus= " + isIdle())
 	endif
 	GTlastupdate = GTcurrent
-	Debug.Notification(Utility.GetCurrentRealTime() - RTstart)
+	;Debug.Notification(Utility.GetCurrentRealTime() - RTstart)
 	RegisterForSingleUpdate(MCMValue.UpdateTicker)
 endEvent
 
@@ -757,6 +751,10 @@ function BodyMorph()
 			endif
 		endif
 	endif
+
+	if MCMValue.debuglogenabled
+		Debug.trace("DBA: Morphupdate done.")
+	endif
 endFunction
 
 function BodyTransform()
@@ -800,6 +798,10 @@ function BodyTransform()
 			Debug.trace("DBA: Waistalternative transformation set.")
 		endif
 	endif
+
+	if MCMValue.debuglogenabled
+		Debug.trace("DBA: Transformupdate done.")
+	endif
 endFunction
 
 ;################################################################################################################################################################
@@ -841,30 +843,10 @@ function setMorphValue(Actor akActor, float value, string morphName)
 endFunction
 
 bool function isIdle()
-	bool status = 0
- 	if dba_player.isInCombat()
-		status = 1
-		return status
-	elseif dba_player.isRunning()
-		status = 1
-		return status
-	elseif dba_player.isSprinting()
-		status = 1
-		return status
-	elseif dba_player.isSneaking()
-		status = 1
-		return status
-	elseif dba_player.isSwimming()
-		status = 1
-		return status
-	elseif dba_player.isOnMount()
-		status = 1
-		return status
-	elseif dba_player.isFlying()
-		status = 1
-		return status
+ 	if dba_player.isInCombat() || dba_player.isRunning() || dba_player.isSprinting() || dba_player.isSneaking() || dba_player.isSwimming() || dba_player.isOnMount() || dba_player.isFlying()
+		return false
 	endif
-	return status
+	return true
 endFunction
 
 ;################################################################################################################################################################

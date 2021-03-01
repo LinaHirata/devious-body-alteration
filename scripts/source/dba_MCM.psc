@@ -420,10 +420,10 @@ event OnPageReset(string page)
 		MagicEffect[] playerEffect = GetAllActiveEffectsOnActor(dba_player, true)
 		int i = 0
 		while i < playerEffect.length
-			if i == 63
-				SetCursorPosition(1)
+			string archetype = GetEffectArchetypeAsString(playerEffect[i])
+			if archetype == "ValueMod" || archetype == "DualValueMod" || archetype == "PeakValueMod"
+				AddTextOption(playerEffect[i].GetName(), "")
 			endif
-			AddTextOption(playerEffect[i].GetName(), "")
 			i += 1
 		endwhile
 	endif
