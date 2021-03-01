@@ -876,6 +876,8 @@ function resetEyesAlteration(bool checkQueue = true)
 	dba_player.SetExpressionModifier(7, 0.0)
 	dba_player.SetExpressionModifier(12, 0.0)
 	dba_player.SetExpressionModifier(13, 0.0)
+
+	MCMValue.eyesResetQueued = false
 endfunction
 
 function resetMouthAlteration(bool checkQueue = true)
@@ -885,6 +887,8 @@ function resetMouthAlteration(bool checkQueue = true)
 	
 	SetPhonemeModifier(dba_player, 0, 1, 0)
 	SetPhonemeModifier(dba_player, 0, 11, 0)
+
+	MCMValue.mouthResetQueued = false
 endfunction
 
 function resetNeckAlteration(bool checkQueue = true)
@@ -894,6 +898,8 @@ function resetNeckAlteration(bool checkQueue = true)
 	
 	AddNodeTransformScale(dba_player,false, true, "NPC Head [Head]", 1.0)
 	AddNodeTransformScale(dba_player,false, true, "NPC Neck [Neck]", 1.0)
+
+	MCMValue.neckResetQueued = false
 endfunction
 
 function resetArmsAlteration(bool checkQueue = true)
@@ -904,12 +910,16 @@ function resetArmsAlteration(bool checkQueue = true)
 	SetMorphValue(dba_Player, 0.0, "Arms")
 	setMorphValue(dba_Player, 0.0, "ShoulderSmooth")
 	setMorphValue(dba_player, 0.0, "ShoulderWidth")
+
+	MCMValue.armsResetQueued = false
 endfunction
 
 function resetHandsAlteration(bool checkQueue = true)
 ;	if checkQueue && !MCMValue.handsResetQueued
 ;		return
 ;	endif
+;
+;	MCMValue.handsResetQueued = false
 endfunction
 
 function resetBreastsAlteration(bool checkQueue = true)
@@ -924,6 +934,8 @@ function resetBreastsAlteration(bool checkQueue = true)
 
 	setMorphValue(dba_Player, 0.0, "BreastsSSH")
 	setMorphValue(dba_Player, 0.0, "DoubleMelon")
+
+	MCMValue.breastsResetQueued = false
 endfunction
 
 function resetWaistAlteration(bool checkQueue = true)
@@ -942,6 +954,8 @@ function resetWaistAlteration(bool checkQueue = true)
 
 	setMorphValue(dba_player, 0.0, "Breasts")
 	setMorphValue(dba_player, 0.0, "BreastHeight")
+
+	MCMValue.waistResetQueued = false
 endfunction
 
 function resetButtAlteration(bool checkQueue = true)
@@ -951,6 +965,8 @@ function resetButtAlteration(bool checkQueue = true)
 
 	setMorphValue(dba_player, 0.0, "BigButt")
 	setMorphValue(dba_Player, 0.0, "AppleCheeks")
+
+	MCMValue.buttResetQueued = false
 endfunction
 
 function resetAnusAlteration(bool checkQueue = true)
@@ -959,6 +975,8 @@ function resetAnusAlteration(bool checkQueue = true)
 	endif
 
 	setMorphValue(dba_player, 0.0, "AnusSpread")
+
+	MCMValue.anusResetQueued = false
 endfunction
 
 function resetVaginaAlteration(bool checkQueue = true)
@@ -968,6 +986,8 @@ function resetVaginaAlteration(bool checkQueue = true)
 
 	AddNodeTransformScale(dba_player, false, true, "NPC L Pussy02", 1.0)
 	AddNodeTransformScale(dba_player, false, true, "NPC R Pussy02", 1.0)
+
+	MCMValue.vaginaResetQueued = false
 endfunction
 
 function resetLegsAlteration(bool checkQueue = true)
@@ -977,6 +997,8 @@ function resetLegsAlteration(bool checkQueue = true)
 
 	setMorphValue(dba_Player, 0.0, "KneeHeight")
 	setMorphValue(dba_Player, 0.0, "CalfSize")
+
+	MCMValue.legsResetQueued = false
 endfunction
 
 function resetFeetAlteration(bool checkQueue = true)
@@ -987,6 +1009,8 @@ function resetFeetAlteration(bool checkQueue = true)
 	if dba_player.getWornForm(Slot37) == AlteredFeet
 		dba_player.unequipItemSlot(37)
 	endif
+
+	MCMValue.feetResetQueued = false
 endfunction
 
 function resetMovementSpeed(bool checkQueue = true)
@@ -997,6 +1021,8 @@ function resetMovementSpeed(bool checkQueue = true)
 	dba_player.restoreAV("SpeedMult", speedmod)
 	dba_Player.damageActorValue("Carryweight", 0.02)
 	dba_Player.restoreActorValue("Carryweight", 0.02)
+	
+	MCMValue.movSpeedResetQueued = false
 endif
 
 function resetAlterations(bool checkQueue = true)

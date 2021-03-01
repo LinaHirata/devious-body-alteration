@@ -611,98 +611,185 @@ event OnOptionSliderAccept(int option, float value)
 		morphtimer = value as float
 		SetSliderOptionValue(option, morphtimer, "{1}h")
 	elseif option == maxspeedmultOID
-		maxspeedmult = value as float
-		SetSliderOptionValue(option, maxspeedmult, "{0}%")
+		if maxspeedmult != value
+			maxspeedmult = value as float
+			SetSliderOptionValue(option, maxspeedmult, "{0}%")
+			movSpeedResetQueued = true
+		endif
 	elseif option == minspeedmultOID
-		minspeedmult = value as float
-		SetSliderOptionValue(option, minspeedmult, "{0}%")
+		if minspeedmult != value
+			minspeedmult = value as float
+			SetSliderOptionValue(option, minspeedmult, "{0}%")
+			movSpeedResetQueued = true
+		endif
 	elseif option == heeldebuffOID
-		heeldebuff = value as float
-		SetSliderOptionValue(option, heeldebuff, "{1}")
+		if heeldebuff != value
+			heeldebuff = value as float
+			SetSliderOptionValue(option, heeldebuff, "{1}")
+			movSpeedResetQueued = true
+		endif
 	elseif option == legdebuffOID
-		legdebuff = value as float
-		SetSliderOptionValue(option, legdebuff, "{1}")
+		if legdebuff != value
+			legdebuff = value as float
+			SetSliderOptionValue(option, legdebuff, "{1}")
+			movSpeedResetQueued = true
+		endif
 	elseif option == MMEbreastmaxOID
-		mmebreastmax = value as float
-		SetSliderOptionValue(option, mmebreastmax, "{1}")
+		if mmebreastmax != value
+			mmebreastmax = value as float
+			SetSliderOptionValue(option, mmebreastmax, "{1}")
+			breastsResetQueued = true
+		endif
 	endif
 
 ;###########Alteration###########	
 	if option == eyeOID
-		eye = value as float
-		SetSliderOptionValue(option, eye, "{0}")
+		if eye != value
+			eye = value as float
+			SetSliderOptionValue(option, eye, "{0}")
+			eyesResetQueued = true
+		endif
 	elseif option == mouthOID
-		mouth = value as float
-		SetSliderOptionValue(option, mouth, "{0}")
+		if mouth != value
+			mouth = value as float
+			SetSliderOptionValue(option, mouth, "{0}")
+			mouthResetQueued = true
+		endif
 	elseif option == neckOID
-		neck = value as float
-		SetSliderOptionValue(option, neck, "{0}")
+		if neck != value
+			neck = value as float
+			SetSliderOptionValue(option, neck, "{0}")
+			neckResetQueued = true
+		endif
 	elseif option == armOID
-		arm = value as float
-		SetSliderOptionValue(option, arm, "{0}")
+		if arm != value
+			arm = value as float
+			SetSliderOptionValue(option, arm, "{0}")
+			armsResetQueued = true
+		endif
 	elseif option == handOID
-		hand = value as float
-		SetSliderOptionValue(option, hand, "{0}")
+		if hand != value
+			hand = value as float
+			SetSliderOptionValue(option, hand, "{0}")
+			handsResetQueued = true
+		endif
 	elseif option == breastOID
-		breast = value as float
-		SetSliderOptionValue(option, breast, "{0}")
+		if breast != value
+			breast = value as float
+			SetSliderOptionValue(option, breast, "{0}")
+			breastsResetQueued = true
+		endif
 	elseif option == waistOID
-		waist = value as float
-		SetSliderOptionValue(option, waist, "{0}")
+		if waist != value
+			waist = value as float
+			SetSliderOptionValue(option, waist, "{0}")
+			waistResetQueued = true
+		endif
 	elseif option == buttOID
-		butt = value as float
-		SetSliderOptionValue(option, butt, "{0}")
+		if butt != value
+			butt = value as float
+			SetSliderOptionValue(option, butt, "{0}")
+			buttResetQueued = true
+		endif
 	elseif option == anusOID
-		anus = value as float
-		SetSliderOptionValue(option, anus, "{0}")
+		if anus != value
+			anus = value as float
+			SetSliderOptionValue(option, anus, "{0}")
+			anusResetQueued = true
+		endif
 	elseif option == vaginaOID
-		vagina = value as float
-		SetSliderOptionValue(option, vagina, "{0}")
+		if vagina != value
+			vagina = value as float
+			SetSliderOptionValue(option, vagina, "{0}")
+			vaginaResetQueued = true
+		endif
 	elseif option == legOID
-		leg = value as float
-		SetSliderOptionValue(option, leg, "{0}")
+		if leg != value
+			leg = value as float
+			SetSliderOptionValue(option, leg, "{0}")
+			legsResetQueued = true
+		endif
 	elseif option == footOID
-		foot = value as float
-		SetSliderOptionValue(option, foot, "{0}")
+		if foot != value
+			foot = value as float
+			SetSliderOptionValue(option, foot, "{0}")
+			feetResetQueued = true
+		endif
 	endif
 	
 ;###########Recovery###########
 	if option == eyerecoverOID
-		eyerecover = value as float
-		SetSliderOptionValue(option, eyerecover, "{2}")
+		if eyerecover != value
+			eyerecover = value as float
+			SetSliderOptionValue(option, eyerecover, "{2}")
+			eyesResetQueued = true
+		endif
 	elseif option == mouthrecoverOID
-		mouthrecover = value as float
-		SetSliderOptionValue(option, mouthrecover, "{2}")
+		if mouthrecover != value
+			mouthrecover = value as float
+			SetSliderOptionValue(option, mouthrecover, "{2}")
+			mouthResetQueued = true
+		endif
 	elseif option == neckrecoverOID
-		neckrecover = value as float
-		SetSliderOptionValue(option, neckrecover, "{2}")
+		if neckrecover != value
+			neckrecover = value as float
+			SetSliderOptionValue(option, neckrecover, "{2}")
+			neckResetQueued = true
+		endif
 	elseif option == armrecoverOID
-		armrecover = value as float
-		SetSliderOptionValue(option, armrecover, "{2}")
+		if armrecover != value
+			armrecover = value as float
+			SetSliderOptionValue(option, armrecover, "{2}")
+			armsResetQueued = true
+		endif
 	elseif option == handrecoverOID
-		handrecover = value as float
-		SetSliderOptionValue(option, handrecover, "{2}")
+		if handrecover != value
+			handrecover = value as float
+			SetSliderOptionValue(option, handrecover, "{2}")
+			handsResetQueued = true
+		endif
 	elseif option == breastrecoverOID
-		breastrecover = value as float
-		SetSliderOptionValue(option, breastrecover, "{2}")
+		if breastrecover != value
+			breastrecover = value as float
+			SetSliderOptionValue(option, breastrecover, "{2}")
+			breastsResetQueued = true
+		endif
 	elseif option == waistrecoverOID
-		waistrecover = value as float
-		SetSliderOptionValue(option, waistrecover, "{2}")
+		if waistrecover != value
+			waistrecover = value as float
+			SetSliderOptionValue(option, waistrecover, "{2}")
+			waistResetQueued = true
+		endif
 	elseif option == buttrecoverOID
-		buttrecover = value as float
-		SetSliderOptionValue(option, buttrecover, "{2}")
+		if buttrecover != value
+			buttrecover = value as float
+			SetSliderOptionValue(option, buttrecover, "{2}")
+			buttResetQueued = true
+		endif
 	elseif option == anusrecoverOID
-		anusrecover = value as float
-		SetSliderOptionValue(option, anusrecover, "{2}")
+		if anusrecover != value
+			anusrecover = value as float
+			SetSliderOptionValue(option, anusrecover, "{2}")
+			anusResetQueued = true
+		endif
 	elseif option == vaginarecoverOID
-		vaginarecover = value as float
-		SetSliderOptionValue(option, vaginarecover, "{2}")
+		if vaginarecover != value
+			vaginarecover = value as float
+			SetSliderOptionValue(option, vaginarecover, "{2}")
+			vaginaResetQueued = true
+		endif
 	elseif option == legrecoverOID
-		legrecover = value as float
-		SetSliderOptionValue(option, legrecover, "{2}")
+		if legrecover != value
+			legrecover = value as float
+			SetSliderOptionValue(option, legrecover, "{2}")
+			legsResetQueued = true
+		endif
 	elseif option == footrecoverOID
-		footrecover = value as float
-		SetSliderOptionValue(option, footrecover, "{2}")
+		if footrecover != value
+			footrecover = value as float
+			SetSliderOptionValue(option, footrecover, "{2}")
+			feetResetQueued = true
+		endif
 	endif
 endEvent
 
@@ -814,9 +901,11 @@ event OnOptionSelect(int option)
 	elseif (option == ypsOID)
 		yps = !yps
 		SetToggleOptionValue(ypsOID, yps)
+		feetResetQueued = true
 	elseif (option == mmeOID)
 		mme =!mme
 		SetToggleOptionValue(mmeOID, mme)
+		breastsResetQueued = true
 	endif
 
 ;###########Alteration###########	
@@ -826,6 +915,7 @@ event OnOptionSelect(int option)
 	elseif (option == waistaltOID)
 		waistalt = !waistalt
 		SetToggleOptionValue(waistaltOID, waistalt)
+		waistResetQueued = true
 	elseif (option == commentOID)
 		comment = !comment
 		SetToggleOptionValue(commentOID, comment)
@@ -843,6 +933,7 @@ event OnOptionSelect(int option)
 			SetOptionFlags(heeldebuffOID, OPTION_FLAG_DISABLED)
 			SetOptionFlags(legdebuffOID, OPTION_FLAG_DISABLED)
 		endif
+		movSpeedResetQueued = true
 	endif
 
 ;###########Debug##############	
@@ -863,6 +954,7 @@ state eyeAltST
 	event onSelectST()
 		eyeAlt = !eyeAlt
 		SetToggleOptionValueST(eyeAlt)
+		eyesResetQueued = true
 	endEvent
 endState
 
@@ -873,6 +965,7 @@ state eyeEnabledToggleST
 	event onSelectST()
 		eyeEnabled = !eyeEnabled
 		SetToggleOptionValueST(eyeEnabled)
+		eyesResetQueued = true
 	endEvent
 endState
 
@@ -880,6 +973,7 @@ state mouthEnabledToggleST
 	event onSelectST()
 		mouthEnabled = !mouthEnabled
 		SetToggleOptionValueST(mouthEnabled)
+		mouthResetQueued = true
 	endEvent
 endState
 
@@ -887,6 +981,7 @@ state neckEnabledToggleST
 	event onSelectST()
 		neckEnabled = !neckEnabled
 		SetToggleOptionValueST(neckEnabled)
+		neckResetQueued = true
 	endEvent
 endState
 
@@ -894,6 +989,7 @@ state armEnabledToggleST
 	event onSelectST()
 		armEnabled = !armEnabled
 		SetToggleOptionValueST(armEnabled)
+		armsResetQueued = true
 	endEvent
 endState
 
@@ -901,6 +997,7 @@ state handEnabledToggleST
 	event onSelectST()
 		handEnabled = !handEnabled
 		SetToggleOptionValueST(handEnabled)
+		handsResetQueued = true
 	endEvent
 endState
 
@@ -908,6 +1005,7 @@ state breastEnabledToggleST
 	event onSelectST()
 		breastEnabled = !breastEnabled
 		SetToggleOptionValueST(breastEnabled)
+		breastsResetQueued = true
 	endEvent
 endState
 
@@ -915,6 +1013,7 @@ state waistEnabledToggleST
 	event onSelectST()
 		waistEnabled = !waistEnabled
 		SetToggleOptionValueST(waistEnabled)
+		waistResetQueued = true
 	endEvent
 endState
 
@@ -922,6 +1021,7 @@ state buttEnabledToggleST
 	event onSelectST()
 		buttEnabled = !buttEnabled
 		SetToggleOptionValueST(buttEnabled)
+		buttResetQueued = true
 	endEvent
 endState
 
@@ -929,6 +1029,7 @@ state anusEnabledToggleST
 	event onSelectST()
 		anusEnabled = !anusEnabled
 		SetToggleOptionValueST(anusEnabled)
+		anusResetQueued = true
 	endEvent
 endState
 
@@ -936,6 +1037,7 @@ state vaginaEnabledToggleST
 	event onSelectST()
 		vaginaEnabled = !vaginaEnabled
 		SetToggleOptionValueST(vaginaEnabled)
+		vaginaResetQueued = true
 	endEvent
 endState
 
@@ -943,6 +1045,7 @@ state legEnabledToggleST
 	event onSelectST()
 		legEnabled = !legEnabled
 		SetToggleOptionValueST(legEnabled)
+		legsResetQueued = true
 	endEvent
 endState
 
@@ -950,6 +1053,7 @@ state footEnabledToggleST
 	event onSelectST()
 		footEnabled = !footEnabled
 		SetToggleOptionValueST(footEnabled)
+		feetResetQueued = true
 	endEvent
 endState
 
