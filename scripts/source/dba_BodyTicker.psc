@@ -93,6 +93,7 @@ event OnUpdate()
 		endif
 	endif
 
+	float RTstart = Utility.GetCurrentRealTime()
 	GTcurrent = Utility.GetCurrentGameTime()
 	GTpassed = (GTcurrent - GTlastupdate) * MCMValue.speed
 
@@ -165,6 +166,7 @@ event OnUpdate()
 		Debug.trace("DBA: GTcurrent= " + GTcurrent + " ; GTlastupdate= " + GTlastupdate + " ; NextUpdate= " + NextUpdate + " ; IdleStatus= " + isIdle())
 	endif
 	GTlastupdate = GTcurrent
+	Debug.Notification(Utility.GetCurrentRealTime() - RTstart)
 	RegisterForSingleUpdate(MCMValue.UpdateTicker)
 endEvent 
 
@@ -1023,7 +1025,7 @@ function resetMovementSpeed(bool checkQueue = true)
 	dba_Player.restoreActorValue("Carryweight", 0.02)
 	
 	MCMValue.movSpeedResetQueued = false
-endif
+endfunction
 
 function resetAlterations(bool checkQueue = true)
 	resetEyesAlteration(checkQueue)
