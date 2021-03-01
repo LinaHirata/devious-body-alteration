@@ -100,7 +100,7 @@ bool property eyesResetQueued = false auto
 bool property mouthResetQueued = false auto
 bool property neckResetQueued = false auto
 bool property armsResetQueued = false auto
-bool property handsResetQueued = false auto
+;bool property handsResetQueued = false auto
 bool property breastsResetQueued = false auto
 bool property waistResetQueued = false auto
 bool property buttResetQueued = false auto
@@ -672,7 +672,7 @@ event OnOptionSliderAccept(int option, float value)
 		if hand != value
 			hand = value as float
 			SetSliderOptionValue(option, hand, "{0}")
-			handsResetQueued = true
+			;handsResetQueued = true
 		endif
 	elseif option == breastOID
 		if breast != value
@@ -747,7 +747,7 @@ event OnOptionSliderAccept(int option, float value)
 		if handrecover != value
 			handrecover = value as float
 			SetSliderOptionValue(option, handrecover, "{2}")
-			handsResetQueued = true
+			;handsResetQueued = true
 		endif
 	elseif option == breastrecoverOID
 		if breastrecover != value
@@ -948,7 +948,7 @@ event OnOptionSelect(int option)
 endEvent
 
 ;################################################################################################################################################################
-;############################################################################## States #########################################################################
+;---------------------------------------------------------------------------- States ----------------------------------------------------------------------------
 ;################################################################################################################################################################
 
 state eyeAltST
@@ -960,7 +960,7 @@ state eyeAltST
 endState
 
 ;################################################################################################################################################################
-;############################################################################ Alteration ########################################################################
+;-------------------------------------------------------------------------- Alteration --------------------------------------------------------------------------
 ;################################################################################################################################################################
 state eyeEnabledToggleST
 	event onSelectST()
@@ -998,7 +998,7 @@ state handEnabledToggleST
 	event onSelectST()
 		handEnabled = !handEnabled
 		SetToggleOptionValueST(handEnabled)
-		handsResetQueued = true
+		;handsResetQueued = true
 	endEvent
 endState
 
@@ -1059,7 +1059,7 @@ state footEnabledToggleST
 endState
 
 ;################################################################################################################################################################
-;############################################################################ Recovery ##########################################################################
+;--------------------------------------------------------------------------- Recovery ---------------------------------------------------------------------------
 ;################################################################################################################################################################
 state eyeRecoveryLimitST
 	event onSliderOpenST() 
@@ -1290,7 +1290,7 @@ state footRecoveryLimitST
 endState
 
 ;################################################################################################################################################################
-;############################################################################ Status ############################################################################
+;---------------------------------------------------------------------------- Status ----------------------------------------------------------------------------
 ;################################################################################################################################################################
 state eyeAlterationRankST
 	event onSliderOpenST()
@@ -1514,6 +1514,10 @@ state resetRanksST
 		BodyTicker.vaginatimeMax = 0.0
 		BodyTicker.legtimeMax = 0.0
 		BodyTicker.foottimeMax = 0.0
+
+		eyesResetQueued = true
+		mouthResetQueued = true
+		feetResetQueued = true
 
 		SetSliderOptionValueST(0.0, "{0}", false, "eyeAlterationRankST")
 		SetSliderOptionValueST(0.0, "{0}", false, "mouthAlterationRankST")

@@ -53,6 +53,10 @@ Armor property AlteredFeet Auto
 Armor Property CinderellaFeetItem Auto
 int Property Slot37 = 0x00000080 AutoReadOnly ; Feet
 
+;################################################################################################################################################################
+;----------------------------------------------------------------------- Initialization -------------------------------------------------------------------------
+;################################################################################################################################################################
+
 event OnInit()
 	utility.wait(5.0) ; wait first, to reduce game save load (and crash chance)
 
@@ -65,7 +69,43 @@ event OnInit()
 	Debug.trace("DBA: Variables and update timer are set.")	
 endEvent
 
+function InitVariables()
+	dditem = new Keyword[32] ;more to start with.
+	dditem[0] = libs.zad_DeviousBoots
+	dditem[1] = libs.zad_DeviousCorset
+	dditem[2] = libs.zad_DeviousHarness	
+	dditem[3] = libs.zad_DeviousLegCuffs
+	dditem[4] = libs.zad_DeviousArmCuffs
+	dditem[5] = libs.zad_DeviousGag
+	dditem[6] = libs.zad_DeviousCollar
+	dditem[7] = libs.zad_DeviousBelt
+	dditem[8] = libs.zad_DeviousBra
+	dditem[9] = libs.zad_DeviousGloves
+	dditem[10] = libs.zad_DeviousPlugVaginal
+	dditem[11] = libs.zad_DeviousPlugAnal
+	dditem[12] = libs.zad_DeviousPiercingsNipple
+	dditem[13] = libs.zad_DeviousPiercingsVaginal
+	dditem[14] = libs.zad_DeviousYoke
+	dditem[15] = libs.zad_DeviousArmbinder
+	dditem[16] = libs.zad_DeviousBlindfold
+	dditem[17] = libs.zad_DeviousYokeBB
+	dditem[18] = libs.zad_DeviousStraitJacket
+	dditem[19] = libs.zad_DeviousArmbinderElbow
+	dditem[20] = libs.zad_DeviousHobbleSkirt
+	dditem[21] = libs.zad_DeviousHobbleSkirtRelaxed
+	dditem[22] = libs.zad_DeviousSuit
+	dditem[23] = libs.zad_DeviousAnkleShackles
+
+	weighttime = dba_player.GetActorBase().getWeight()
+	weightcalc = dba_player.GetActorBase().getWeight()
+endFunction
+
+;################################################################################################################################################################
+;---------------------------------------------------------------------- Main Update Loop ------------------------------------------------------------------------
+;################################################################################################################################################################
+
 event OnUpdate()
+	float RTstart = Utility.GetCurrentRealTime()
 	if !MCMValue.modenabled
 		if MCMValue.MCMclose
 			resetAlterations(false)
@@ -77,6 +117,7 @@ event OnUpdate()
 		if MCMValue.debuglogenabled
 			Debug.trace("DBA: Mod disabled.")
 		endif
+		Debug.Notification(Utility.GetCurrentRealTime() - RTstart)
 		RegisterForSingleUpdate(MCMValue.UpdateTicker)
 		return
 	elseif MCMValue.MCMclose
@@ -93,7 +134,6 @@ event OnUpdate()
 		endif
 	endif
 
-	float RTstart = Utility.GetCurrentRealTime()
 	GTcurrent = Utility.GetCurrentGameTime()
 	GTpassed = (GTcurrent - GTlastupdate) * MCMValue.speed
 
@@ -168,86 +208,12 @@ event OnUpdate()
 	GTlastupdate = GTcurrent
 	Debug.Notification(Utility.GetCurrentRealTime() - RTstart)
 	RegisterForSingleUpdate(MCMValue.UpdateTicker)
-endEvent 
+endEvent
 
-function InitVariables()
-	dditem = new Keyword[32] ;more to start with.
-	dditem[0] = libs.zad_DeviousBoots
-	dditem[1] = libs.zad_DeviousCorset
-	dditem[2] = libs.zad_DeviousHarness	
-	dditem[3] = libs.zad_DeviousLegCuffs
-	dditem[4] = libs.zad_DeviousArmCuffs
-	dditem[5] = libs.zad_DeviousGag
-	dditem[6] = libs.zad_DeviousCollar
-	dditem[7] = libs.zad_DeviousBelt
-	dditem[8] = libs.zad_DeviousBra
-	dditem[9] = libs.zad_DeviousGloves
-	dditem[10] = libs.zad_DeviousPlugVaginal
-	dditem[11] = libs.zad_DeviousPlugAnal
-	dditem[12] = libs.zad_DeviousPiercingsNipple
-	dditem[13] = libs.zad_DeviousPiercingsVaginal
-	dditem[14] = libs.zad_DeviousYoke
-	dditem[15] = libs.zad_DeviousArmbinder
-	dditem[16] = libs.zad_DeviousBlindfold
-	dditem[17] = libs.zad_DeviousYokeBB
-	dditem[18] = libs.zad_DeviousStraitJacket
-	dditem[19] = libs.zad_DeviousArmbinderElbow
-	dditem[20] = libs.zad_DeviousHobbleSkirt
-	dditem[21] = libs.zad_DeviousHobbleSkirtRelaxed
-	dditem[22] = libs.zad_DeviousSuit
-	dditem[23] = libs.zad_DeviousAnkleShackles
-
-	weighttime = dba_player.GetActorBase().getWeight()
-	weightcalc = dba_player.GetActorBase().getWeight()
-	
-	int i
-	altstatus = new String[20]
-	while i < 13
-		altstatus[i] = "(untrained)"
-		i += 1
-	endwhile
-
-;	altstatus[0] = "(untrained)"	; eye
-;	altstatus[1] = "(untrained)"	; mouth
-;	altstatus[2] = "(untrained)"	; neck
-;	altstatus[3] = "(untrained)"	; arm
-;	altstatus[4] = "(untrained)"	; hand
-;	altstatus[5] = "(untrained)"	; breast
-;	altstatus[6] = "(untrained)"	; waist
-;	altstatus[7] = "(untrained)"	; butt
-;	altstatus[8] = "(untrained)"	; vagina
-;	altstatus[9] = "(untrained)"	; anus
-;	altstatus[10] = "(untrained)"	; leg
-;	altstatus[11] = "(untrained)"	; feet
-;	altstatus[12] = "(untrained)"	; weight
-endFunction
-
-bool function isIdle()
-	bool status = 0
- 	if dba_player.isInCombat()
-		status = 1
-		return status
-	elseif dba_player.isRunning()
-		status = 1
-		return status
-	elseif dba_player.isSprinting()
-		status = 1
-		return status
-	elseif dba_player.isSneaking()
-		status = 1
-		return status
-	elseif dba_player.isSwimming()
-		status = 1
-		return status
-	elseif dba_player.isOnMount()
-		status = 1
-		return status
-	elseif dba_player.isFlying()
-		status = 1
-		return status
-	endif
-	return status
-endFunction
+;################################################################################################################################################################
+;---------------------------------------------------------------------- Training section ------------------------------------------------------------------------
+;-------------------------------------- eyes, mouth and feet alterations get applied here as they are more time sensitive ---------------------------------------
+;################################################################################################################################################################
 
 function checkEye()
 	int status = 0
@@ -679,6 +645,10 @@ function CheckWalkingStatus()
 	endif
 endFunction
 
+;################################################################################################################################################################
+;-------------------------------------------------------------------- Morphs and Transforms ---------------------------------------------------------------------
+;################################################################################################################################################################
+
 function BodyMorph()
 ;#####Armsection#####
 	if MCMvalue.armEnabled && MCMvalue.arm > 0
@@ -790,8 +760,7 @@ function BodyMorph()
 endFunction
 
 function BodyTransform()
-	int r = utility.RandomInt(0, 44)
-	
+;#####Necksection#####
 	if MCMvalue.neckEnabled && MCMvalue.neck > 0
 		float head = 1 / (1 + (necktime * MCMValue.neck / 10000)) ; slider muliplied by factionrank is maxed at 10000
 		float neck = 1 + (necktime * MCMValue.neck / 10000) ; slider muliplied by factionrank is maxed at 10000
@@ -803,7 +772,8 @@ function BodyTransform()
 			Debug.trace("DBA: Neck transformation set. Necktime= " + necktime)
 		endif
 	endif
-	
+
+;#####Vaginasection#####
 	if MCMvalue.vaginaEnabled && MCMvalue.vagina > 0
 		float vagina = 1 / (1 + (vaginatime * MCMValue.vagina / 10000)) ; slider muliplied by factionrank is maxed at 10000
 		AddNodeTransformScale(dba_player, false, true, "NPC L Pussy02", vagina)
@@ -814,6 +784,7 @@ function BodyTransform()
 		endif
 	endif
 
+;#####Waistaltsection#####
 	if MCMValue.waistalt && MCMvalue.waistEnabled && MCMValue.waist > 0
 		float spn1 = 1 / (1 + (waisttime * MCMValue.waist / 10000)) ; slider muliplied by factionrank is maxed at 10000
 		float spn2 = 1 + (waisttime * MCMValue.waist / 10000) ; slider muliplied by factionrank is maxed at 10000
@@ -830,6 +801,10 @@ function BodyTransform()
 		endif
 	endif
 endFunction
+
+;################################################################################################################################################################
+;----------------------------------------------------------------------- Utility section ------------------------------------------------------------------------
+;################################################################################################################################################################
 
 function AddNodeTransformScale(Actor akActor, bool firstPerson, bool isFemale, string nodeName, float scale)
 	if MCMValue.SLIF
@@ -863,6 +838,54 @@ function setMorphValue(Actor akActor, float value, string morphName)
 			NiOverride.ClearBodyMorph(akActor, morphName, "DBA") ; clear morph by toggle or disable mod implementation not done yet
 		endif
 	endif
+endFunction
+
+bool function isIdle()
+	bool status = 0
+ 	if dba_player.isInCombat()
+		status = 1
+		return status
+	elseif dba_player.isRunning()
+		status = 1
+		return status
+	elseif dba_player.isSprinting()
+		status = 1
+		return status
+	elseif dba_player.isSneaking()
+		status = 1
+		return status
+	elseif dba_player.isSwimming()
+		status = 1
+		return status
+	elseif dba_player.isOnMount()
+		status = 1
+		return status
+	elseif dba_player.isFlying()
+		status = 1
+		return status
+	endif
+	return status
+endFunction
+
+;################################################################################################################################################################
+;------------------------------------------------------------------------ Reset section -------------------------------------------------------------------------
+;################################################################################################################################################################
+
+function resetAlterations(bool checkQueue = true)
+	resetEyesAlteration(checkQueue)
+	resetMouthAlteration(checkQueue)
+	resetNeckAlteration(checkQueue)
+	resetArmsAlteration(checkQueue)
+	;resetHandsAlteration(checkQueue)
+	resetBreastsAlteration(checkQueue)
+	resetWaistAlteration(checkQueue)
+	resetButtAlteration(checkQueue)
+	resetAnusAlteration(checkQueue)
+	resetVaginaAlteration(checkQueue)
+	resetLegsAlteration(checkQueue)
+	resetLegsAlteration(checkQueue)
+	resetFeetAlteration(checkQueue)
+	resetMovementSpeed(checkQueue)
 endFunction
 
 function resetEyesAlteration(bool checkQueue = true)
@@ -916,13 +939,13 @@ function resetArmsAlteration(bool checkQueue = true)
 	MCMValue.armsResetQueued = false
 endfunction
 
-function resetHandsAlteration(bool checkQueue = true)
+;function resetHandsAlteration(bool checkQueue = true)
 ;	if checkQueue && !MCMValue.handsResetQueued
 ;		return
 ;	endif
 ;
 ;	MCMValue.handsResetQueued = false
-endfunction
+;endfunction
 
 function resetBreastsAlteration(bool checkQueue = true)
 	if checkQueue && !MCMValue.breastsResetQueued
@@ -1027,176 +1050,190 @@ function resetMovementSpeed(bool checkQueue = true)
 	MCMValue.movSpeedResetQueued = false
 endfunction
 
-function resetAlterations(bool checkQueue = true)
-	resetEyesAlteration(checkQueue)
-	resetMouthAlteration(checkQueue)
-	resetNeckAlteration(checkQueue)
-	resetArmsAlteration(checkQueue)
-	;resetHandsAlteration(checkQueue)
-	resetBreastsAlteration(checkQueue)
-	resetWaistAlteration(checkQueue)
-	resetButtAlteration(checkQueue)
-	resetAnusAlteration(checkQueue)
-	resetVaginaAlteration(checkQueue)
-	resetLegsAlteration(checkQueue)
-	resetLegsAlteration(checkQueue)
-	resetFeetAlteration(checkQueue)
-	resetMovementSpeed(checkQueue)
-endFunction
+;################################################################################################################################################################
+;----------------------------------------------------------------------- Comment section ------------------------------------------------------------------------
+;################################################################################################################################################################
 
 function Bodymeter()
-	Comment()
-
-	string statusbox1 = "Your body status:\n\nEyes: (" + eyetime as int +") " + altstatus[0] + "\nMouth: (" + mouthtime as int + ") " + altstatus[1] + "\nArms: (" + armtime as int + ") " + altstatus[3] + "\nHands: (" + handtime as int + ") " + altstatus[4] + "\nBreasts: (" + breasttime as int + ") " + altstatus[5] + "\nWaist: (" + waisttime as int + ") " + altstatus[6] + "\nButt: (" + butttime as int + ") " + altstatus[7]
-	string statusbox2 = "Your body status:\n\nAnus: (" + anustime as int + ") " + altstatus[9] + "\nLegs: (" + legtime as int + ") " + altstatus[10] + "\nFeet: (" + foottime as int + ") " + altstatus[11] + "\nBodyweight: (" + weighttime as int + ") " + altstatus[12] + "\nNeck: (" + necktime as int + ") " + altstatus[2] + "\nVagina: (" + vaginatime as int + ") " + altstatus[8] + "\nSpeedmult: " + dba_player.getAV("Speedmult") as int
+	string statusbox1 = "Your body status:\n\nEyes: (" + eyetime as int +") " + comment(0) + "\nMouth: (" + mouthtime as int + ") " + comment(1) + "\nArms: (" + armtime as int + ") " + comment(3) + "\nHands: (" + handtime as int + ") " + comment(4) + "\nBreasts: (" + breasttime as int + ") " + comment(5) + "\nWaist: (" + waisttime as int + ") " + comment(6) + "\nButt: (" + butttime as int + ") " + comment(7)	
+	string statusbox2 = "Your body status:\n\nAnus: (" + anustime as int + ") " + comment(9) + "\nLegs: (" + legtime as int + ") " + comment(10) + "\nFeet: (" + foottime as int + ") " + comment(11) + "\nBodyweight: (" + weighttime as int + ") " + comment(12) + "\nNeck: (" + necktime as int + ") " + comment(2) + "\nVagina: (" + vaginatime as int + ") " + comment(8) + "\nSpeedmult: " + dba_player.getAV("Speedmult") as int
 	
 	debug.Messagebox(statusbox1)
 	debug.Messagebox(statusbox2)
 endFunction
 
 function randomComment()
-	comment()
-	int i = 0
+	int r1 = GenerateRandomInt(0, 13)
+	int r2 = GenerateRandomInt(0, 13)
 
-	int r1 = GenerateRandomInt(0, 12)
-	int r2 = GenerateRandomInt(0, 12)
-
-	while i < 13
-		if (r1 == i || r2 == i) && altstatus[i] != "(untrained)"
-			debug.notification(altstatus[i])
+	string comment1 = comment(r1)
+	if comment1 != "(untrained)"
+		debug.notification(comment1)
+	endif
+	if r1 != r2
+		string comment2 = comment(r2)
+		if comment2 != "(untrained)"
+			debug.notification(comment2)
 		endif
-		i += 1
-	endwhile
+	endif
 endFunction
 
-function Comment()
-	if eyetime >= 90
-		altstatus[0] = "Persisting Blindfold training render your eyes useless."
-	elseif eyetime >= 75
-		altstatus[0] = "You almost don´t need your eyes to move around."
-	elseif eyetime >= 50
-		altstatus[0] = "With your eyes useless you stumble around."
-	elseif eyetime >= 25
-		altstatus[0] = "You´re very cautious because your lack of vision."
-	endif
-
-	if mouthtime >= 90
-		altstatus[1] = "Persisting Gag training shaped your mouth to perfection."
-	elseif mouthtime >= 75
-		altstatus[1] = "Your jaw seems to never close again."
-	elseif mouthtime >= 50
-		altstatus[1] = "With your jaw permanently open you cannot eat or drink."
-	elseif mouthtime >= 25
-		altstatus[1] = "Your mouth seems to stay open on its own accord."
-	endif
-
-	if necktime >= 90
-		altstatus[2] = "Persisting collar training did shape your delicate sexy posture."
-	elseif necktime >= 75
-		altstatus[2] = "Your collar training did elongate your sexy neck."
-	elseif necktime >= 50
-		altstatus[2] = "Your collar training did change your posture."
-	elseif necktime >= 25
-		altstatus[2] = "Your collar training does make your neck sore."
-	endif
-
-	if armtime >= 90
-		altstatus[3] = "Persisting arm immobilization made them delicate."
-	elseif armtime >= 75
-		altstatus[3] = "Your arm immobilization render them dignified."
-	elseif armtime >= 50
-		altstatus[3] = "Your arm immobilization render them skinny."
-	elseif armtime >= 25
-		altstatus[3] = "Your arms feel weak."
-	endif
-
-	if handtime >= 90
-		altstatus[4] = "Persisting glove usage render your finger delicate and sensitive."
-	elseif handtime >= 75
-		altstatus[4] = "Your hands seem very sensitive."
-	elseif handtime >= 50
-		altstatus[4] = "Your hands feel unnatural touchy."
-	elseif handtime >= 25
-		altstatus[4] = "Your hands feel considerable tender."
-	endif
-
-	if breasttime >= 90
-		altstatus[5] = "Persisting breast stimulus render them tremendous."
-	elseif breasttime >= 75
-		altstatus[5] = "Your boobs feel heavy and billowy."
-	elseif breasttime >= 50
-		altstatus[5] = "Your breasts seem swollen."
-	elseif breasttime >= 25
-		altstatus[5] = "You have an ample cleavage now."
-	endif
-
-	if waisttime >= 90
-		altstatus[6] = "Persisting waist training bring your hour glass figure to perfection."
-	elseif waisttime >= 75
-		altstatus[6] = "Your slim wasp waist does need corset support."
-	elseif waisttime >= 50
-		altstatus[6] = "Your wasp waist seems unnatural small."
-	elseif waisttime >= 25
-		altstatus[6] = "Your waist indicates the shape of hour glass."
-	endif
-
-	if butttime >= 90
-		altstatus[7] = "Persisting butt stimulus render your bubble butt to perfection."
-	elseif butttime >= 75
-		altstatus[7] = "Your big butt wobbles with every step."
-	elseif butttime >= 50
-		altstatus[7] = "You ponder how your butt does fit in normal clothes."
-	elseif butttime >= 25
-		altstatus[7] = "Your butt does stretch the seams of your cloth."
-	endif
-
-	if vaginatime >= 90
-		altstatus[8] = "Persisting vaginal plug training render you perpetually wet and open."
-	elseif vaginatime >= 75
-		altstatus[8] = "Filling your pussy with a plug does exceedingly arouse you."
-	elseif vaginatime >= 50
-		altstatus[8] = "Only filled with a plug you feel complete."
-	elseif vaginatime >= 25
-		altstatus[8] = "Your vagina plug usage feels arousing."
-	endif
-
-	if anustime >= 90
-		altstatus[9] = "Persisting anal plug training render you yearn for more."
-	elseif anustime >= 75
-		altstatus[9] = "Filling your anus with a plug does arouse you."
-	elseif anustime >= 50
-		altstatus[9] = "Your anus is stretched to the limit."
-	elseif anustime >= 25
-		altstatus[9] = "Your anal plug usage feels unnatural."
-	endif
-
-	if legtime >= 90
-		altstatus[10] = "Persisting training with cuffs render your legs delicate."
-	elseif legtime >= 75
-		altstatus[10] = "Your leg cuff training render them dignified."
-	elseif legtime >= 50
-		altstatus[10] = "Your leg cuff training render them skinny."
-	elseif legtime >= 25
-		altstatus[10] = "Your legs seem weak."
-	endif
-
-	if foottime >= 90
-		altstatus[11] = "Persisting heel training induce you to walk sexy on your tippy toes."
-	elseif foottime >= 75
-		altstatus[11] = "Your heel training render your gait sexy."
-	elseif foottime >= 50
-		altstatus[11] = "Walking on heels feels natural."
-	elseif foottime >= 25
-		altstatus[11] = "Your heel training made your feet sore."
-	endif
-
-	if weighttime >= 90
-		altstatus[12] = "Persistent training has given you the body of a sex doll."
-	elseif weighttime >= 75
-		altstatus[12] = "Ongoing training enhances your sexy curves."
-	elseif weighttime >= 50
-		altstatus[12] = "Training reshapes your body in all the right places."
-	elseif weighttime >= 25
-		altstatus[12] = "Your dainty body responds to training."
+string function comment(int bodyPart)
+	if bodyPart == 0
+		if eyetime < 25
+			return "(untrained)"
+		elseif eyetime < 50
+			return "You´re very cautious because your lack of vision."
+		elseif eyetime < 75
+			return "With your eyes useless you stumble around."
+		elseif eyetime < 90
+			return "You almost don´t need your eyes to move around."
+		else
+			return "Persisting Blindfold training render your eyes useless."
+		endif
+	elseif bodyPart == 1
+		if mouthtime < 25
+			return "(untrained)"
+		elseif mouthtime < 50
+			return "Your mouth seems to stay open on its own accord."
+		elseif mouthtime < 75
+			return "With your jaw permanently open you cannot eat or drink."
+		elseif mouthtime < 90
+			return "Your jaw seems to never close again."
+		else
+			return "Persisting Gag training shaped your mouth to perfection."
+		endif
+	elseif bodyPart == 2
+		if necktime < 25
+			return "(untrained)"
+		elseif necktime < 50
+			return "Your collar training does make your neck sore."
+		elseif necktime < 75
+			return "Your collar training did change your posture."
+		elseif necktime < 90
+			return "Your collar training did elongate your sexy neck."
+		else
+			return "Persisting collar training did shape your delicate sexy posture."
+		endif
+	elseif bodyPart == 3
+		if armtime < 25
+			return "(untrained)"
+		elseif armtime < 50
+			return "Your arms feel weak."
+		elseif armtime < 75
+			return "Your arm immobilization render them skinny."
+		elseif armtime < 90
+			return "Your arm immobilization render them dignified."
+		else
+			return "Persisting arm immobilization made them delicate."
+		endif
+	elseif bodyPart == 4
+		if handtime < 25
+			return "(untrained)"
+		elseif handtime < 50
+			return "Your hands feel considerable tender."
+		elseif handtime < 75
+			return "Your hands feel unnatural touchy."
+		elseif handtime < 90
+			return "Your hands seem very sensitive."
+		else
+			return "Persisting glove usage render your finger delicate and sensitive."
+		endif
+	elseif bodyPart == 5
+		if breasttime < 25
+			return "(untrained)"
+		elseif breasttime < 50
+			return "You have an ample cleavage now."
+		elseif breasttime < 75
+			return "Your breasts seem swollen."
+		elseif breasttime < 90
+			return "Your boobs feel heavy and billowy."
+		else
+			return "Persisting breast stimulus render them tremendous."
+		endif
+	elseif bodyPart == 6
+		if waisttime < 25
+			return "(untrained)"
+		elseif waisttime < 50
+			return "Your waist indicates the shape of hour glass."
+		elseif waisttime < 75
+			return "Your wasp waist seems unnatural small."
+		elseif waisttime < 90
+			return "Your slim wasp waist does need corset support."
+		else
+			return "Persisting waist training bring your hour glass figure to perfection."
+		endif
+	elseif bodyPart == 7
+		if butttime < 25
+			return "(untrained)"
+		elseif butttime < 50
+			return "Your butt does stretch the seams of your cloth."
+		elseif butttime < 75
+			return "You ponder how your butt does fit in normal clothes."
+		elseif butttime < 90
+			return "Your big butt wobbles with every step."
+		else
+			return "Persisting butt stimulus render your bubble butt to perfection."
+		endif
+	elseif bodyPart == 8
+		if vaginatime < 25
+			return "(untrained)"
+		elseif vaginatime < 50
+			return "Your vagina plug usage feels arousing."
+		elseif vaginatime < 75
+			return "Only filled with a plug you feel complete."
+		elseif vaginatime < 90
+			return "Filling your pussy with a plug does exceedingly arouse you."
+		else
+			return "Persisting vaginal plug training render you perpetually wet and open."
+		endif
+	elseif bodyPart == 9
+		if anustime < 25
+			return "(untrained)"
+		elseif anustime < 50
+			return "Your anal plug usage feels unnatural."
+		elseif anustime < 75
+			return "Your anus is stretched to the limit."
+		elseif anustime < 90
+			return "Filling your anus with a plug does arouse you."
+		else
+			return "Persisting anal plug training render you yearn for more."
+		endif
+	elseif bodyPart == 10
+		if legtime < 25
+			return "(untrained)"
+		elseif legtime < 50
+			return "Your legs seem weak."
+		elseif legtime < 75
+			return "Your leg cuff training render them skinny."
+		elseif legtime < 90
+			return "Your leg cuff training render them dignified."
+		else
+			return "Persisting training with cuffs render your legs delicate."
+		endif
+	elseif bodyPart == 11
+		if foottime < 25
+			return "(untrained)"
+		elseif foottime < 50
+			return "Your heel training made your feet sore."
+		elseif foottime < 75
+			return "Walking on heels feels natural."
+		elseif foottime < 90
+			return "Your heel training render your gait sexy."
+		else
+			return "Persisting heel training induce you to walk sexy on your tippy toes."
+		endif
+	elseif bodyPart == 12
+		if weighttime < 25
+			return "(untrained)"
+		elseif weighttime < 50
+			return "Your dainty body responds to training."
+		elseif weighttime < 75
+			return "Training reshapes your body in all the right places."
+		elseif weighttime < 90
+			return "Ongoing training enhances your sexy curves."
+		else
+			return "Persistent training has given you the body of a sex doll."
+		endif
 	endif
 endFunction
