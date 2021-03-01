@@ -100,6 +100,7 @@ bool property eyesResetQueued = false auto
 bool property mouthResetQueued = false auto
 bool property neckResetQueued = false auto
 bool property armsResetQueued = false auto
+bool property handsResetQueued = false auto
 bool property breastsResetQueued = false auto
 bool property waistResetQueued = false auto
 bool property buttResetQueued = false auto
