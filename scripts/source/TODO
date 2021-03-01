@@ -1,17 +1,27 @@
 Optimization:
-Bring MCM to one style (single event or States)
-Recode BodyTicker
-Add update states (check if update is actually needed)
-Redo Movement Speed effect
+Bring MCM to one style (single event or States) - PRIO
+Redo Movement Speed effect - PRIO
+Recode BodyTicker (mostly done (?) )
 Add translation files(?)
 
 Features:
 Anal training makes you unable to orgasm without anal stimulation
+    #^^^ would require some trickery with 'canorgasm' states
 Vaginal training makes you 'wet' and 'horny' all the time (increases arousal, periodically or as a multiplier)
+    #^^^ currently i dont see/know of a way to add global multiplier so it will probably be
+    #^^^ periodical arousal increase equal to vagina training time over timespan of a day
 Reduce/increase carry weight depending on character weight/legs strength, etc
+    #^^^ gotta workout logic/numbers first, shouldnt be too intrusive as to prevent player from playing the game
+    #^^^ but should be relevant as not to be ignored by the player
+    #^^^ most logical thing to do would be something interactive, but what :THONK: :question:
 Add processed food (?)/magic sustenance(?)/soul gems(?)
+    #^^^ relevant only if survival mods are installed, needs integration to prevent normal food from working
+Add body specific options (BHUNP for example)
+    #^^^ this is actual ez, check for morph plugin present, if it is -> use it
 
 Devious Devices and SexLab integration (change settings for example)
+    #^^^ literally steal it from Devious Training
 Optionally allow user to change HOW it is integrated with SexLab and Devious Devices
 
 Optionally add SlaveTats effects
+    #^^^ as im no artist, would require creative borrowing of assets KEKW
