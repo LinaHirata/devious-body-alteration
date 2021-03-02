@@ -3,6 +3,8 @@ Scriptname dba_BodyTicker extends Quest Hidden
 dba_MCM property MCMValue Auto
 Actor property dba_player Auto
 zadlibs property libs Auto
+zadConfig Property zadConfigHandle Auto ; zadConfigQuest [QUST:1501A282]
+zadGagQuestScript Property zadGagHandle Auto ; zadGagQuest [QUST:1502B5EF]
 
 import MfgConsoleFunc
 import po3_SKSEFunctions
@@ -10,6 +12,7 @@ import po3_SKSEFunctions
 float GTcurrent = 0.0
 float GTlastupdate = 0.0
 float GTpassed = 0.0
+float GTpassedActual = 0.0 ; shouldnt change original variable names ._.
 float Morphupdate = 0.0 
 float Transformupdate = 0.0 
 float NextUpdate = 0.0
@@ -135,7 +138,8 @@ event OnUpdate()
 	endif
 
 	GTcurrent = Utility.GetCurrentGameTime()
-	GTpassed = (GTcurrent - GTlastupdate) * MCMValue.speed
+	GTpassedActual = GTcurrent - GTlastupdate
+	GTpassed = GTpassedActual * MCMValue.speed
 
 	if MCMValue.eyeEnabled
 		checkEye()
@@ -236,14 +240,23 @@ function checkEye()
 			dba_player.setExpressionModifier(12, squint)
 			dba_player.setExpressionModifier(13, squint)
 		endif
-	elseif status == 1 && eyetime < 100
-		eyetime += GTpassed * 14.29
-		if eyetime > 100
-			eyetime = 100
+	elseif status == 1
+		if eyetime < 100
+			eyetime += GTpassed * 14.29
+
+			if eyetime > 100
+				eyetime = 100
+			endif
+			if eyetime > eyetimeMax
+				eyetimeMax = eyetime
+			endif
 		endif
-		if eyetime > eyetimeMax
-			eyetimeMax = eyetime
-		endif
+		;if MCMValue.DDIntegration
+		;	zadConfigHandle.bootsSlowdownToggle = false
+		;	zadConfigHandle.blindfoldMode = 2
+			zadConfigHandle.blindfoldStrength = 0.5 - eyetime * 0.005
+			zadConfigHandle.darkfogStrength = (300 + eyetime * 2) as int
+		;endif
 	endif
 
 	if MCMValue.debuglogenabled
@@ -270,14 +283,19 @@ function checkMouth()
 			setPhonemeModifier(dba_player, 0, 1, opening as int)
 			setPhonemeModifier(dba_player, 0, 11, (opening * 0.7) as int) ; using factor 0.7 to prevent it looking weired... more weired as it is
 		endif
-	elseif status == 1 && mouthtime < 100
-		mouthtime += GTpassed * 14.29 ; mouthtime multiplied by 14.29 is approx 7 days from 0 to 100
+	elseif status == 1
+		if mouthtime < 100
+			mouthtime += GTpassed * 14.29 ; mouthtime multiplied by 14.29 is approx 7 days from 0 to 100
 
-		if mouthtime > 100
-			mouthtime = 100
+			if mouthtime > 100
+				mouthtime = 100
+			endif
+			if mouthtime > mouthtimeMax
+				mouthtimeMax = mouthtime
+			endif
 		endif
-		if mouthtime > mouthtimeMax
-			mouthtimeMax = mouthtime
+		if mouthtime >= 90
+			zadGagHandle.canTalk = true
 		endif
 	endif
 
@@ -483,6 +501,11 @@ function checkVagina()
 	endif
 
 	if status == 0 && MCMValue.vaginarecover > 0 && vaginatime > 0
+		int handle = ModEvent.Create("slaUpdateExposure")
+		ModEvent.PushForm(handle, dba_player)
+		ModEvent.PushFloat(handle, GTpassedActual * vaginatime)
+		ModEvent.Send(handle)
+
 		vaginatime -= GTpassed * 7.14 * MCMValue.vaginarecover ; vaginatime multiplied by 7.14 is approx 14 days from 0 to 100
 
 		float vaginatimeLimit = vaginatimeMax * MCMvalue.vaginaRecoveryLimit
@@ -722,7 +745,7 @@ function BodyMorph()
 		setMorphValue(dba_player, anus, "AnusSpread")
 
 		if MCMValue.debuglogenabled
-			Debug.trace("DBA: Anus adjustment done.")
+			Debug.trace("DBA: Anus adjustment done. Anustime= " + anustime)
 		endif
 	endif
 
@@ -1071,7 +1094,7 @@ string function comment(int bodyPart)
 		elseif eyetime < 90
 			return "You almost don´t need your eyes to move around."
 		else
-			return "Persisting Blindfold training render your eyes useless."
+			return "Through persisting training you learned to navigate even when blindfolded."
 		endif
 	elseif bodyPart == 1
 		if mouthtime < 25

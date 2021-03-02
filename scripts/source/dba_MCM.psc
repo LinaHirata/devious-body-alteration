@@ -1,9 +1,11 @@
 Scriptname dba_MCM extends SKI_ConfigBase
 
-import po3_SKSEFunctions
-
 dba_BodyTicker Property BodyTicker Auto
 Actor Property dba_player Auto
+zadConfig Property zadConfigHandle Auto ; zadConfigQuest [QUST:1501A282]
+zadGagQuestScript Property zadGagHandle Auto ; zadGagQuest [QUST:1502B5EF]
+
+import po3_SKSEFunctions
 
 Faction Property dba_Eye Auto  
 Faction Property dba_Mouth Auto  
@@ -967,6 +969,10 @@ state eyeEnabledToggleST
 		eyeEnabled = !eyeEnabled
 		SetToggleOptionValueST(eyeEnabled)
 		eyesResetQueued = true
+		if !eyeEnabled
+			zadConfigHandle.blindfoldStrength = 0.5
+			zadConfigHandle.darkfogStrength = 300
+		endif
 	endEvent
 endState
 
@@ -975,6 +981,9 @@ state mouthEnabledToggleST
 		mouthEnabled = !mouthEnabled
 		SetToggleOptionValueST(mouthEnabled)
 		mouthResetQueued = true
+		if !mouthEnabled
+			zadGagHandle.canTalk = false
+		endif
 	endEvent
 endState
 
