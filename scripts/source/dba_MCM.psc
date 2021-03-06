@@ -45,6 +45,16 @@ bool property yps = false Auto
 bool property MME = false Auto
 float property MMEbreastmax = 4.5 Auto
 
+bool property DDBlindfoldStrengthAdjustmentEnabled = false auto
+float property DDBlindfoldStrengthBase = 0.5 auto
+float property DDBlindfoldStrengthTarget = 0.0 auto
+float property DDDarkfogStrengthBase = 300.0 auto
+float property DDDarkfogStrengthTarget = 500.0 auto
+float property DDBlindfoldStrengthRatio = 0.005 auto 	; <------- these two values exist just so we dont have to recalculate them every update tick
+float property DDDarkfogStrengthRatio = -2.0 auto 		; set when base and target values are changed (in mcm) and are equal '(base - target) / 100'
+bool property DDGagTrainingEnabled = false auto
+float property DDGagProficiencyThreshold = 80.0 auto
+
 bool property eyeEnabled 	= true Auto
 bool property mouthEnabled 	= true Auto
 bool property neckEnabled 	= true Auto
@@ -307,13 +317,31 @@ event OnPageReset(string page)
 			mmeOID = AddToggleOption("Milk Mod Economy", MME, OPTION_FLAG_DISABLED)
 			MMEbreastmaxOID = AddSliderOption("max MMEbreast size", mmebreastmax, "{1}", OPTION_FLAG_DISABLED)
 		endif
+		AddToggleOptionST("DDBlindfoldStrengthAdjustmentST", "Adjust Blindfold strength", DDBlindfoldStrengthAdjustmentEnabled)
+		if DDBlindfoldStrengthAdjustmentEnabled
+			AddSliderOptionST("DDBlindfoldStrengthBaseST", 		"Blindfold strength Base", 		DDBlindfoldStrengthBase, 	"{2}")
+			AddSliderOptionST("DDBlindfoldStrengthTargetST", 	"Blindfold strength Target", 	DDBlindfoldStrengthTarget, 	"{2}")
+			AddSliderOptionST("DDDarkfogStrengthBaseST", 		"Dark Fog strength Base", 		DDDarkfogStrengthBase, 		"{0}")
+			AddSliderOptionST("DDDarkfogStrengthTargetST", 		"Dark Fog strength Target", 	DDDarkfogStrengthTarget, 	"{0}")
+		else
+			AddSliderOptionST("DDBlindfoldStrengthBaseST", 		"Blindfold strength Base", 		DDBlindfoldStrengthBase, 	"{2}", OPTION_FLAG_DISABLED)
+			AddSliderOptionST("DDBlindfoldStrengthTargetST", 	"Blindfold strength Target", 	DDBlindfoldStrengthTarget, 	"{2}", OPTION_FLAG_DISABLED)
+			AddSliderOptionST("DDDarkfogStrengthBaseST", 		"Dark Fog strength Base", 		DDDarkfogStrengthBase, 		"{0}", OPTION_FLAG_DISABLED)
+			AddSliderOptionST("DDDarkfogStrengthTargetST", 		"Dark Fog strength Target", 	DDDarkfogStrengthTarget, 	"{0}", OPTION_FLAG_DISABLED)
+		endif
+		AddToggleOptionST("DDGagTrainingST", "Gag training (allows to speak freely)", DDGagTrainingEnabled)
+		if DDGagTrainingEnabled
+			AddSliderOptionST("DDGagProficiencyThresholdST", "Gag proficiency threshold", DDGagProficiencyThreshold, "{0}")
+		else
+			AddSliderOptionST("DDGagProficiencyThresholdST", "Gag proficiency threshold", DDGagProficiencyThreshold, "{0}", OPTION_FLAG_DISABLED)
+		endif
 		AddEmptyOption()
 		AddTextOptionST("updateMenuST", "Update Menu", "")
 		
 		SetCursorPosition(1)
 		AddHeaderOption("Alteration effects to use")
 		commentOID 		= AddToggleOption("Alteration comments", comment)
-		AddToggleOptionST("eyeAltST","Alternative Eye Alteration", eyeAlt)
+		AddToggleOptionST("eyeAltST", "Alternative Eye Alteration", eyeAlt)
 		waistaltOID 	= AddToggleOption("Alternative Waist Alteration", waistalt)
 		walkingspeedOID = AddToggleOption("Walking Speed Adjustment", walkingspeed)
 		if walkingspeed 
@@ -952,6 +980,151 @@ endEvent
 ;################################################################################################################################################################
 ;---------------------------------------------------------------------------- States ----------------------------------------------------------------------------
 ;################################################################################################################################################################
+;---------------------------------------------------------------------------- General ---------------------------------------------------------------------------
+;################################################################################################################################################################
+state DDBlindfoldStrengthAdjustmentST
+	event onSelectST()
+		DDBlindfoldStrengthAdjustmentEnabled = !DDBlindfoldStrengthAdjustmentEnabled
+		SetToggleOptionValueST(DDBlindfoldStrengthAdjustmentEnabled)
+		if DDBlindfoldStrengthAdjustmentEnabled
+			SetOptionFlagsST(OPTION_FLAG_NONE, false, "DDBlindfoldStrengthBaseST")
+			SetOptionFlagsST(OPTION_FLAG_NONE, false, "DDBlindfoldStrengthTargetST")
+			SetOptionFlagsST(OPTION_FLAG_NONE, false, "DDDarkfogStrengthBaseST")
+			SetOptionFlagsST(OPTION_FLAG_NONE, false, "DDDarkfogStrengthTargetST")
+		else
+			SetOptionFlagsST(OPTION_FLAG_DISABLED, false, "DDBlindfoldStrengthBaseST")
+			SetOptionFlagsST(OPTION_FLAG_DISABLED, false, "DDBlindfoldStrengthTargetST")
+			SetOptionFlagsST(OPTION_FLAG_DISABLED, false, "DDDarkfogStrengthBaseST")
+			SetOptionFlagsST(OPTION_FLAG_DISABLED, false, "DDDarkfogStrengthTargetST")
+			zadConfigHandle.blindfoldStrength = 0.5
+			zadConfigHandle.darkfogStrength = 300
+		endif
+	endEvent
+endState
+
+state DDBlindfoldStrengthBaseST
+	event onSliderOpenST() 
+		SetSliderDialogStartValue(DDBlindfoldStrengthBase)
+		SetSliderDialogDefaultValue(0.5)
+		SetSliderDialogRange(0, 1)
+		SetSliderDialogInterval(0.01)
+	endEvent
+
+	event onSliderAcceptST(float value)
+		DDBlindfoldStrengthBase = value
+		SetSliderOptionValueST(DDBlindfoldStrengthBase, "{2}")
+		updateDDBlindfoldBaseTargetRatio()
+	endEvent
+
+	event onDefaultST()
+		DDBlindfoldStrengthBase = 0.5
+		SetSliderOptionValueST(DDBlindfoldStrengthBase, "{2}")
+		updateDDBlindfoldBaseTargetRatio()
+	endEvent
+endState
+
+state DDBlindfoldStrengthTargetST
+	event onSliderOpenST() 
+		SetSliderDialogStartValue(DDBlindfoldStrengthTarget)
+		SetSliderDialogDefaultValue(0.0)
+		SetSliderDialogRange(0, 1)
+		SetSliderDialogInterval(0.01)
+	endEvent
+
+	event onSliderAcceptST(float value)
+		DDBlindfoldStrengthTarget = value
+		SetSliderOptionValueST(DDBlindfoldStrengthTarget, "{2}")
+		updateDDBlindfoldBaseTargetRatio()
+	endEvent
+
+	event onDefaultST()
+		DDBlindfoldStrengthTarget = 0.0
+		SetSliderOptionValueST(DDBlindfoldStrengthTarget, "{2}")
+		updateDDBlindfoldBaseTargetRatio()
+	endEvent
+endState
+
+function updateDDBlindfoldBaseTargetRatio()
+	DDBlindfoldStrengthRatio = (DDBlindfoldStrengthBase - DDBlindfoldStrengthTarget) / 100
+endfunction
+
+state DDDarkfogStrengthBaseST
+	event onSliderOpenST() 
+		SetSliderDialogStartValue(DDDarkfogStrengthBase)
+		SetSliderDialogDefaultValue(300)
+		SetSliderDialogRange(200, 500)
+		SetSliderDialogInterval(1)
+	endEvent
+
+	event onSliderAcceptST(float value)
+		DDDarkfogStrengthBase = value
+		SetSliderOptionValueST(DDDarkfogStrengthBase, "{0}")
+		updateDDDarkfogBaseTargetRatio()
+	endEvent
+
+	event onDefaultST()
+		DDDarkfogStrengthBase = 300
+		SetSliderOptionValueST(DDDarkfogStrengthBase, "{0}")
+		updateDDDarkfogBaseTargetRatio()
+	endEvent
+endState
+
+state DDDarkfogStrengthTargetST
+	event onSliderOpenST() 
+		SetSliderDialogStartValue(DDDarkfogStrengthTarget)
+		SetSliderDialogDefaultValue(500)
+		SetSliderDialogRange(200, 500)
+		SetSliderDialogInterval(1)
+	endEvent
+
+	event onSliderAcceptST(float value)
+		DDDarkfogStrengthTarget = value
+		SetSliderOptionValueST(DDDarkfogStrengthTarget, "{0}")
+		updateDDDarkfogBaseTargetRatio()
+	endEvent
+
+	event onDefaultST()
+		DDDarkfogStrengthTarget = 500
+		SetSliderOptionValueST(DDDarkfogStrengthTarget, "{0}")
+		updateDDDarkfogBaseTargetRatio()
+	endEvent
+endState
+
+function updateDDDarkfogBaseTargetRatio()
+	DDDarkfogStrengthRatio = (DDDarkfogStrengthBase - DDDarkfogStrengthTarget) / 100
+endfunction
+
+state DDGagTrainingST
+	event onSelectST()
+		DDGagTrainingEnabled = !DDGagTrainingEnabled
+		SetToggleOptionValueST(DDGagTrainingEnabled)
+		if DDGagTrainingEnabled
+			SetOptionFlagsST(OPTION_FLAG_NONE, false, "DDGagProficiencyThresholdST")
+		else
+			SetOptionFlagsST(OPTION_FLAG_DISABLED, false, "DDGagProficiencyThresholdST")
+			zadGagHandle.canTalk = false
+		endif
+	endEvent
+endState
+
+state DDGagProficiencyThresholdST
+	event onSliderOpenST() 
+		SetSliderDialogStartValue(DDGagProficiencyThreshold)
+		SetSliderDialogDefaultValue(80)
+		SetSliderDialogRange(0, 100)
+		SetSliderDialogInterval(1)
+	endEvent
+
+	event onSliderAcceptST(float value)
+		DDGagProficiencyThreshold = value
+		SetSliderOptionValueST(DDGagProficiencyThreshold, "{0}")
+	endEvent
+
+	event onDefaultST()
+		DDGagProficiencyThreshold = 80
+		SetSliderOptionValueST(DDGagProficiencyThreshold, "{0}")
+	endEvent
+endState
 
 state eyeAltST
 	event onSelectST()
@@ -1079,7 +1252,7 @@ state eyeRecoveryLimitST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		eyeRecoveryLimit = value as float
+		eyeRecoveryLimit = value
 		SetSliderOptionValueST(eyeRecoveryLimit, "{2}")
 	endEvent
 
@@ -1098,7 +1271,7 @@ state mouthRecoveryLimitST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		mouthRecoveryLimit = value as float
+		mouthRecoveryLimit = value
 		SetSliderOptionValueST(mouthRecoveryLimit, "{2}")
 	endEvent
 
@@ -1117,7 +1290,7 @@ state neckRecoveryLimitST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		neckRecoveryLimit = value as float
+		neckRecoveryLimit = value
 		SetSliderOptionValueST(neckRecoveryLimit, "{2}")
 	endEvent
 
@@ -1136,7 +1309,7 @@ state armRecoveryLimitST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		armRecoveryLimit = value as float
+		armRecoveryLimit = value
 		SetSliderOptionValueST(armRecoveryLimit, "{2}")
 	endEvent
 
@@ -1155,7 +1328,7 @@ state handRecoveryLimitST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		handRecoveryLimit = value as float
+		handRecoveryLimit = value
 		SetSliderOptionValueST(handRecoveryLimit, "{2}")
 	endEvent
 
@@ -1174,7 +1347,7 @@ state breastRecoveryLimitST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		breastRecoveryLimit = value as float
+		breastRecoveryLimit = value
 		SetSliderOptionValueST(breastRecoveryLimit, "{2}")
 	endEvent
 
@@ -1193,7 +1366,7 @@ state waistRecoveryLimitST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		waistRecoveryLimit = value as float
+		waistRecoveryLimit = value
 		SetSliderOptionValueST(waistRecoveryLimit, "{2}")
 	endEvent
 
@@ -1212,7 +1385,7 @@ state buttRecoveryLimitST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		buttRecoveryLimit = value as float
+		buttRecoveryLimit = value
 		SetSliderOptionValueST(buttRecoveryLimit, "{2}")
 	endEvent
 
@@ -1231,7 +1404,7 @@ state anusRecoveryLimitST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		anusRecoveryLimit = value as float
+		anusRecoveryLimit = value
 		SetSliderOptionValueST(anusRecoveryLimit, "{2}")
 	endEvent
 
@@ -1250,7 +1423,7 @@ state vaginaRecoveryLimitST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		vaginaRecoveryLimit = value as float
+		vaginaRecoveryLimit = value
 		SetSliderOptionValueST(vaginaRecoveryLimit, "{2}")
 	endEvent
 
@@ -1269,7 +1442,7 @@ state legRecoveryLimitST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		legRecoveryLimit = value as float
+		legRecoveryLimit = value
 		SetSliderOptionValueST(legRecoveryLimit, "{2}")
 	endEvent
 
@@ -1288,7 +1461,7 @@ state footRecoveryLimitST
 	endEvent
 
 	event onSliderAcceptST(float value)
-		footRecoveryLimit = value as float
+		footRecoveryLimit = value
 		SetSliderOptionValueST(footRecoveryLimit, "{2}")
 	endEvent
 

@@ -251,12 +251,13 @@ function checkEye()
 				eyetimeMax = eyetime
 			endif
 		endif
-		;if MCMValue.DDIntegration
-		;	zadConfigHandle.bootsSlowdownToggle = false
+
+		if MCMValue.DDBlindfoldStrengthAdjustmentEnabled
+		;	zadConfigHandle.bootsSlowdownToggle = false				; <-------- an option
 		;	zadConfigHandle.blindfoldMode = 2
-			zadConfigHandle.blindfoldStrength = 0.5 - eyetime * 0.005
-			zadConfigHandle.darkfogStrength = (300 + eyetime * 2) as int
-		;endif
+			zadConfigHandle.blindfoldStrength = MCMValue.DDBlindfoldStrengthBase - MCMValue.DDBlindfoldStrengthRatio * eyetime
+			zadConfigHandle.darkfogStrength = (MCMValue.DDDarkfogStrengthBase - MCMValue.DDDarkfogStrengthRatio * eyetime) as int
+		endif
 	endif
 
 	if MCMValue.debuglogenabled
@@ -294,7 +295,8 @@ function checkMouth()
 				mouthtimeMax = mouthtime
 			endif
 		endif
-		if mouthtime >= 90
+
+		if MCMValue.DDGagTrainingEnabled && mouthtime >= MCMValue.DDGagProficiencyThreshold
 			zadGagHandle.canTalk = true
 		endif
 	endif
