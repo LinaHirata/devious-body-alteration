@@ -219,14 +219,7 @@ function checkEye()
 		status = 1 ; control opening
 	endif
 
-	if status == 0 && MCMValue.eyerecover > 0 && eyetime > 0
-		eyetime -= GTpassed  * 14.29 * MCMValue.eyerecover ; eyetime multiplied by 14.29 is approx 7 days from 0 to 100
-
-		float eyetimeLimit = eyetimeMax * MCMvalue.eyeRecoveryLimit
-		if eyetime < eyetimeLimit
-			eyetime = eyetimeLimit
-		endif
-
+	if status == 0 && eyetime > 0
 		if MCMvalue.eye > 0 ; alteration enabled, not wearing blindfold, alteration strength > 0
 			float squint = (eyetime * MCMValue.eye / 10000)	; slider setting multiplied with internal expressionmodifier Value is maxed at 10000
 			if (MCMValue.eyeAlt)
@@ -240,6 +233,15 @@ function checkEye()
 			dba_player.setExpressionModifier(12, squint)
 			dba_player.setExpressionModifier(13, squint)
 		endif
+
+		if MCMValue.eyerecover > 0
+			eyetime -= GTpassed  * 14.29 * MCMValue.eyerecover ; eyetime multiplied by 14.29 is approx 7 days from 0 to 100
+
+			float eyetimeLimit = eyetimeMax * MCMvalue.eyeRecoveryLimit
+			if eyetime < eyetimeLimit
+				eyetime = eyetimeLimit
+			endif
+		endif
 	elseif status == 1
 		if eyetime < 100
 			eyetime += GTpassed * 14.29
@@ -251,10 +253,9 @@ function checkEye()
 				eyetimeMax = eyetime
 			endif
 		endif
-
-		if MCMValue.DDBlindfoldStrengthAdjustmentEnabled
 		;	zadConfigHandle.bootsSlowdownToggle = false				; <-------- an option
 		;	zadConfigHandle.blindfoldMode = 2
+		if MCMValue.DDBlindfoldStrengthAdjustmentEnabled
 			zadConfigHandle.blindfoldStrength = MCMValue.DDBlindfoldStrengthBase - MCMValue.DDBlindfoldStrengthRatio * eyetime
 			zadConfigHandle.darkfogStrength = (MCMValue.DDDarkfogStrengthBase - MCMValue.DDDarkfogStrengthRatio * eyetime) as int
 		endif
@@ -271,18 +272,20 @@ function checkMouth()
 		status = 1 ; control opening
 	endif
 
-	if status == 0 && MCMValue.mouthrecover > 0 && mouthtime > 0
-		mouthtime -= GTpassed * 14.29 * MCMValue.mouthrecover
-
-		float mouthtimeLimit = mouthtimeMax * MCMvalue.mouthRecoveryLimit
-		if mouthtime < mouthtimeLimit
-			mouthtime = mouthtimeLimit
-		endif
-
+	if status == 0 && mouthtime > 0
 		if MCMValue.mouth > 0 ; we don´t want facial expression change while wearing a gag
 			float opening = (mouthtime * MCMValue.mouth / 100) ; slider setting multiplied with internal phonememodifier Value is maxed at 100
 			setPhonemeModifier(dba_player, 0, 1, opening as int)
 			setPhonemeModifier(dba_player, 0, 11, (opening * 0.7) as int) ; using factor 0.7 to prevent it looking weired... more weired as it is
+		endif
+
+		if MCMValue.mouthrecover > 0
+			mouthtime -= GTpassed * 14.29 * MCMValue.mouthrecover
+
+			float mouthtimeLimit = mouthtimeMax * MCMvalue.mouthRecoveryLimit
+			if mouthtime < mouthtimeLimit
+				mouthtime = mouthtimeLimit
+			endif
 		endif
 	elseif status == 1
 		if mouthtime < 100
@@ -314,6 +317,7 @@ function checkNeck()
 
 	if status == 0 && MCMValue.neckrecover > 0 && necktime > 0
 		necktime -= GTpassed * 3.57 * MCMValue.neckrecover
+		
 		float necktimeLimit = necktimeMax * MCMvalue.mouthRecoveryLimit
 		if necktime < necktimeLimit
 			necktime = necktimeLimit
@@ -498,21 +502,23 @@ endFunction
 
 function checkVagina()
 	int status = 0
-	if dba_player.WornHasKeyword(dditem[10]) && dba_player.WornHasKeyword(dditem[13])
+	if dba_player.WornHasKeyword(dditem[10]); && dba_player.WornHasKeyword(dditem[13]) ; ????????????????????
 		status = 1 ; vagina widening
 	endif
 
-	if status == 0 && MCMValue.vaginarecover > 0 && vaginatime > 0
+	if status == 0 && vaginatime > 0
 		int handle = ModEvent.Create("slaUpdateExposure")
 		ModEvent.PushForm(handle, dba_player)
 		ModEvent.PushFloat(handle, GTpassedActual * vaginatime)
 		ModEvent.Send(handle)
 
-		vaginatime -= GTpassed * 7.14 * MCMValue.vaginarecover ; vaginatime multiplied by 7.14 is approx 14 days from 0 to 100
+		if MCMValue.vaginarecover > 0
+			vaginatime -= GTpassed * 7.14 * MCMValue.vaginarecover ; vaginatime multiplied by 7.14 is approx 14 days from 0 to 100
 
-		float vaginatimeLimit = vaginatimeMax * MCMvalue.vaginaRecoveryLimit
-		if vaginatime < vaginatimeLimit
-			vaginatime = vaginatimeLimit
+			float vaginatimeLimit = vaginatimeMax * MCMvalue.vaginaRecoveryLimit
+			if vaginatime < vaginatimeLimit
+				vaginatime = vaginatimeLimit
+			endif
 		endif
 	elseif status == 1 && vaginatime < 100
 		vaginatime += GTpassed * 7.14

@@ -5,7 +5,7 @@ Actor Property dba_player Auto
 zadConfig Property zadConfigHandle Auto ; zadConfigQuest [QUST:1501A282]
 zadGagQuestScript Property zadGagHandle Auto ; zadGagQuest [QUST:1502B5EF]
 
-import po3_SKSEFunctions
+;import po3_SKSEFunctions
 
 Faction Property dba_Eye Auto  
 Faction Property dba_Mouth Auto  
@@ -317,6 +317,7 @@ event OnPageReset(string page)
 			mmeOID = AddToggleOption("Milk Mod Economy", MME, OPTION_FLAG_DISABLED)
 			MMEbreastmaxOID = AddSliderOption("max MMEbreast size", mmebreastmax, "{1}", OPTION_FLAG_DISABLED)
 		endif
+		AddHeaderOption("Devious Devices Integration")
 		AddToggleOptionST("DDBlindfoldStrengthAdjustmentST", "Adjust Blindfold strength", DDBlindfoldStrengthAdjustmentEnabled)
 		if DDBlindfoldStrengthAdjustmentEnabled
 			AddSliderOptionST("DDBlindfoldStrengthBaseST", 		"Blindfold strength Base", 		DDBlindfoldStrengthBase, 	"{2}")
@@ -446,17 +447,17 @@ event OnPageReset(string page)
 		debugenabledOID = AddToggleOption("Debug notifications", debugenabled)
 	endif
 
-	if (page == "disable")
-		MagicEffect[] playerEffect = GetAllActiveEffectsOnActor(dba_player, true)
-		int i = 0
-		while i < playerEffect.length
-			string archetype = GetEffectArchetypeAsString(playerEffect[i])
-			if archetype == "ValueMod" || archetype == "DualValueMod" || archetype == "PeakValueMod"
-				AddTextOption(playerEffect[i].GetName(), "")
-			endif
-			i += 1
-		endwhile
-	endif
+	;if (page == "disable")
+	;	MagicEffect[] playerEffect = GetAllActiveEffectsOnActor(dba_player, true)
+	;	int i = 0
+	;	while i < playerEffect.length
+	;		string archetype = GetEffectArchetypeAsString(playerEffect[i])
+	;		if archetype == "ValueMod" || archetype == "DualValueMod" || archetype == "PeakValueMod"
+	;			AddTextOption(playerEffect[i].GetName(), "")
+	;		endif
+	;		i += 1
+	;	endwhile
+	;endif
 endEvent
 
 event OnOptionSliderOpen(int option)
@@ -1006,7 +1007,7 @@ state DDBlindfoldStrengthBaseST
 	event onSliderOpenST() 
 		SetSliderDialogStartValue(DDBlindfoldStrengthBase)
 		SetSliderDialogDefaultValue(0.5)
-		SetSliderDialogRange(0, 1)
+		SetSliderDialogRange(0.0, 1.0)
 		SetSliderDialogInterval(0.01)
 	endEvent
 
@@ -1027,7 +1028,7 @@ state DDBlindfoldStrengthTargetST
 	event onSliderOpenST() 
 		SetSliderDialogStartValue(DDBlindfoldStrengthTarget)
 		SetSliderDialogDefaultValue(0.0)
-		SetSliderDialogRange(0, 1)
+		SetSliderDialogRange(0.0, 1.0)
 		SetSliderDialogInterval(0.01)
 	endEvent
 
