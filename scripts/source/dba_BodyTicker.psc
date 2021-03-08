@@ -220,6 +220,15 @@ function checkEye()
 	endif
 
 	if status == 0 && eyetime > 0
+		if MCMValue.eyerecover > 0
+			eyetime -= GTpassed  * 14.29 * MCMValue.eyerecover ; eyetime multiplied by 14.29 is approx 7 days from 0 to 100
+
+			float eyetimeLimit = eyetimeMax * MCMvalue.eyeRecoveryLimit
+			if eyetime < eyetimeLimit
+				eyetime = eyetimeLimit
+			endif
+		endif
+
 		if MCMvalue.eye > 0 ; alteration enabled, not wearing blindfold, alteration strength > 0
 			float squint = (eyetime * MCMValue.eye / 10000)	; slider setting multiplied with internal expressionmodifier Value is maxed at 10000
 			if (MCMValue.eyeAlt)
@@ -232,15 +241,6 @@ function checkEye()
 			dba_player.setExpressionModifier(7, squint)
 			dba_player.setExpressionModifier(12, squint)
 			dba_player.setExpressionModifier(13, squint)
-		endif
-
-		if MCMValue.eyerecover > 0
-			eyetime -= GTpassed  * 14.29 * MCMValue.eyerecover ; eyetime multiplied by 14.29 is approx 7 days from 0 to 100
-
-			float eyetimeLimit = eyetimeMax * MCMvalue.eyeRecoveryLimit
-			if eyetime < eyetimeLimit
-				eyetime = eyetimeLimit
-			endif
 		endif
 	elseif status == 1
 		if eyetime < 100
@@ -273,12 +273,6 @@ function checkMouth()
 	endif
 
 	if status == 0 && mouthtime > 0
-		if MCMValue.mouth > 0 ; we don´t want facial expression change while wearing a gag
-			float opening = (mouthtime * MCMValue.mouth / 100) ; slider setting multiplied with internal phonememodifier Value is maxed at 100
-			setPhonemeModifier(dba_player, 0, 1, opening as int)
-			setPhonemeModifier(dba_player, 0, 11, (opening * 0.7) as int) ; using factor 0.7 to prevent it looking weired... more weired as it is
-		endif
-
 		if MCMValue.mouthrecover > 0
 			mouthtime -= GTpassed * 14.29 * MCMValue.mouthrecover
 
@@ -286,6 +280,12 @@ function checkMouth()
 			if mouthtime < mouthtimeLimit
 				mouthtime = mouthtimeLimit
 			endif
+		endif
+
+		if MCMValue.mouth > 0 ; we don´t want facial expression change while wearing a gag
+			float opening = (mouthtime * MCMValue.mouth / 100) ; slider setting multiplied with internal phonememodifier Value is maxed at 100
+			setPhonemeModifier(dba_player, 0, 1, opening as int)
+			setPhonemeModifier(dba_player, 0, 11, (opening * 0.7) as int) ; using factor 0.7 to prevent it looking weired... more weired as it is
 		endif
 	elseif status == 1
 		if mouthtime < 100
@@ -322,7 +322,7 @@ function checkNeck()
 		if necktime < necktimeLimit
 			necktime = necktimeLimit
 		endif
-	elseif status == 1 && necktime < 100
+	elseif necktime < 100; && status == 1
 		necktime += GTpassed * 3.57 ; Necktime multiplied by 3.57 is approx 28 days from 0 to 100
 
 		if necktime > 100
@@ -347,7 +347,7 @@ function checkArm()
 		if armtime < armtimeLimit
 			armtime = armtimeLimit
 		endif	
-	elseif status == 1 && armtime < 100
+	elseif armtime < 100; && status == 1
 		armtime += GTpassed * 4.76 ; armtime multiplied by 4.76 is approx 21 days from 0 to 100
 
 		if armtime > 100
@@ -372,7 +372,7 @@ function checkHand()
 		if handtime < handtimeLimit
 			handtime = handtimeLimit
 		endif
-	elseif status == 1 && handtime < 100
+	elseif handtime < 100; && status == 1
 		handtime += GTpassed * 4.76 ; handtime multiplied by 4.76 is approx 21 days from 0 to 100
 
 		if handtime > 100
@@ -386,10 +386,12 @@ endFunction
 
 function checkBreast()
 	int status = 0
-	if dba_player.WornHasKeyword(dditem[2]) || dba_player.WornHasKeyword(dditem[12])
-		status = 1 ; growing boobs
+	if dba_player.WornHasKeyword(dditem[12])
+		status = 1 ; slow growing boobs
+	elseif dba_player.WornHasKeyword(dditem[2]); || dba_player.WornHasKeyword(dditem[12])
+		status = 2 ; growing boobs
 	elseif dba_player.WornHasKeyword(dditem[8])
-		status = 2 ; fast growing boobs
+		status = 3 ; fast growing boobs
 	endif
 
 	if status == 0 && MCMValue.breastrecover > 0 && breasttime > 0
@@ -399,11 +401,13 @@ function checkBreast()
 		if breasttime < breasttimeLimit
 			breasttime = breasttimeLimit
 		endif
-	else
-		if status == 1 && breasttime < 100
+	elseif breasttime < 100
+		if status == 1
+			breasttime += GTpassed * 3.57 * 0.5
+		elseif status == 1
 			breasttime += GTpassed * 3.57 ; breasttime multiplied by 3.57 is approx 28 days from 0 to 100
-		elseif status == 2 && breasttime < 100
-			breasttime += GTpassed * 1.5 * 3.57
+		elseif status == 2
+			breasttime += GTpassed * 3.57 * 1.5
 		endif
 
 		if breasttime > 100
@@ -432,13 +436,13 @@ function checkWaist()
 		if waisttime < waisttimeLimit
 			waisttime = waisttimeLimit
 		endif
-	else
-		if status == 1 && waisttime < 66 ; only with corset it is possible to shrink the waist completly
-			waisttime += GTpassed * 0.75 * 3.57
-		elseif status == 2 && waisttime < 100
+	elseif waisttime < 100
+		if status == 1 && waisttime < 66.66 ; only with corset it is possible to shrink the waist completly
+			waisttime += GTpassed * 3.57 * 0.75
+		elseif status == 2
 			waisttime += GTpassed * 3.57 ; waisttime multiplied by 3.57 is approx 28 days from 0 to 100
-		elseif status == 3 && waisttime < 100
-			waisttime += GTpassed * 1.5 * 3.57
+		elseif status == 3
+			waisttime += GTpassed * 3.57 * 1.5
 		endif
 
 		if waisttime > 100
@@ -463,7 +467,7 @@ function checkButt()
 		if butttime < butttimeLimit
 			butttime = butttimeLimit
 		endif
-	elseif status == 1 && butttime < 100
+	elseif butttime < 100; && status == 1
 		butttime += GTpassed * 4.76
 		
 		if butttime > 100
@@ -488,7 +492,7 @@ function checkAnus()
 		if anustime < anustimeLimit
 			anustime = anustimeLimit
 		endif
-	elseif status == 1 && anustime < 100
+	elseif anustime < 100; && status == 1
 		anustime += GTpassed * 4.76 ; anustime multiplied by 4.76 is approx 21 days from 0 to 100
 
 		if anustime > 100
@@ -502,16 +506,13 @@ endFunction
 
 function checkVagina()
 	int status = 0
-	if dba_player.WornHasKeyword(dditem[10]); && dba_player.WornHasKeyword(dditem[13]) ; ????????????????????
-		status = 1 ; vagina widening
+	if dba_player.WornHasKeyword(dditem[13])
+		status = 1
+	elseif dba_player.WornHasKeyword(dditem[10]); && dba_player.WornHasKeyword(dditem[13]) ; ????????????????????
+		status = 2 ; vagina widening
 	endif
 
 	if status == 0 && vaginatime > 0
-		int handle = ModEvent.Create("slaUpdateExposure")
-		ModEvent.PushForm(handle, dba_player)
-		ModEvent.PushFloat(handle, GTpassedActual * vaginatime)
-		ModEvent.Send(handle)
-
 		if MCMValue.vaginarecover > 0
 			vaginatime -= GTpassed * 7.14 * MCMValue.vaginarecover ; vaginatime multiplied by 7.14 is approx 14 days from 0 to 100
 
@@ -520,8 +521,17 @@ function checkVagina()
 				vaginatime = vaginatimeLimit
 			endif
 		endif
-	elseif status == 1 && vaginatime < 100
-		vaginatime += GTpassed * 7.14
+
+		int handle = ModEvent.Create("slaUpdateExposure")
+		ModEvent.PushForm(handle, dba_player)
+		ModEvent.PushFloat(handle, GTpassedActual * vaginatime)
+		ModEvent.Send(handle)
+	elseif vaginatime < 100
+		if status == 1 && vaginatime < 50
+			vaginatime += GTpassed * 7.14 * 0.5
+		elseif status == 2
+			vaginatime += GTpassed * 7.14
+		endif
 
 		if vaginatime > 100
 			vaginatime = 100
@@ -545,7 +555,7 @@ function checkLeg()
 		if legtime < legtimeLimit
 			legtime = legtimeLimit
 		endif
-	elseif status == 1 && legtime < 100
+	elseif legtime < 100; && status == 1
 		legtime += GTpassed * 4.76
 
 		if legtime > 100
