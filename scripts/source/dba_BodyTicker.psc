@@ -779,13 +779,14 @@ function BodyMorph()
 	endif
 
 ;#####Weightsection#####
-	if MCMValue.weight
+	if MCMValue.weight || MCMValue.weightUpdateQueued
 		if (!dba_player.isOnMount() || !dba_player.isSwimming())
 			float neckdelta = (weightcalc / 100) - (weighttime / 100)
 			dba_player.getActorBase().setWeight(weighttime)
 			dba_player.updateWeight(neckdelta)		
 			dba_player.QueueNiNodeUpdate()
 			weightcalc = weighttime
+			MCMValue.weightUpdateQueued = false
 
 			if MCMValue.debuglogenabled
 				Debug.trace("DBA: Weight Alteration done. Weightvariable= " + weighttime + " ; weightcalc= " + weightcalc)

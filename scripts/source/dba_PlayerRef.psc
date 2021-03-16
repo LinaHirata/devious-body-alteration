@@ -19,7 +19,7 @@ event OnPlayerLoadGame()
 	BodyTicker.RegisterForSingleUpdate(10)
 endEvent
 
-event onObjectEquipped (Form type, ObjectReference ref)
+event onObjectEquipped(Form type, ObjectReference ref)
 	if MCMValue.weight
 		if type.getType() != 46	; little workaround to avoid Error spaming in the log :)
 			if MCMValue.debuglogenabled

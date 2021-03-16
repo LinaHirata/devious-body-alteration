@@ -121,6 +121,7 @@ bool property vaginaResetQueued = false auto
 bool property legsResetQueued = false auto
 bool property feetResetQueued = false auto
 bool property movSpeedResetQueued = false auto
+bool property weightUpdateQueued = false auto
 
 bool property debuglogenabled = true Auto
 bool property debugenabled = true Auto
@@ -330,6 +331,7 @@ event OnPageReset(string page)
 			AddSliderOptionST("DDDarkfogStrengthBaseST", 		"Dark Fog strength Base", 		DDDarkfogStrengthBase, 		"{0}", OPTION_FLAG_DISABLED)
 			AddSliderOptionST("DDDarkfogStrengthTargetST", 		"Dark Fog strength Target", 	DDDarkfogStrengthTarget, 	"{0}", OPTION_FLAG_DISABLED)
 		endif
+		AddEmptyOption()
 		AddToggleOptionST("DDGagTrainingST", "Gag training (allows to speak freely)", DDGagTrainingEnabled)
 		if DDGagTrainingEnabled
 			AddSliderOptionST("DDGagProficiencyThresholdST", "Gag proficiency threshold", DDGagProficiencyThreshold, "{0}")
@@ -1666,6 +1668,7 @@ state weightAlterationRankST
 	event onSliderAcceptST(float value)
 		BodyTicker.weighttime = value
 		SetSliderOptionValueST(BodyTicker.weighttime, "{0}")
+		weightUpdateQueued = true
 	endEvent
 endState
 
@@ -1683,7 +1686,7 @@ state resetRanksST
 		BodyTicker.vaginatime = 0.0
 		BodyTicker.legtime = 0.0
 		BodyTicker.foottime = 0.0
-		BodyTicker.weighttime = 0.0
+		BodyTicker.weighttime = 50.0
 
 		BodyTicker.eyetimeMax = 0.0
 		BodyTicker.mouthtimeMax = 0.0
@@ -1698,9 +1701,11 @@ state resetRanksST
 		BodyTicker.legtimeMax = 0.0
 		BodyTicker.foottimeMax = 0.0
 
-		eyesResetQueued = true
-		mouthResetQueued = true
-		feetResetQueued = true
+		eyesResetQueued = true ; we call these specific resets here coz every time you close mcm
+		mouthResetQueued = true ; moprhs and transforms get updated
+		feetResetQueued = true ; but eyes mouth and feet do not belong to morphs
+		; and if we disabled anything along the way checks wont be called
+		; and nothing will happen (which is bad)
 
 		SetSliderOptionValueST(0.0, "{0}", false, "eyeAlterationRankST")
 		SetSliderOptionValueST(0.0, "{0}", false, "mouthAlterationRankST")
